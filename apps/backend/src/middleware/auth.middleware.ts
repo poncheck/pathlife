@@ -16,14 +16,22 @@ declare global {
  */
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
+    let token: string | undefined;
+
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No token provided' });
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7); // Remove 'Bearer ' prefix
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    // Fallback to query parameter (for images loaded via <img> tags)
+    if (!token && req.query.token) {
+      token = req.query.token as string;
+    }
+
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
 
     // Verify token
     const payload = authService.verifyToken(token);

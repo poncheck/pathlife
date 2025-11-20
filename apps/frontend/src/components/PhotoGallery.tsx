@@ -11,6 +11,19 @@ interface PhotoGalleryProps {
 export function PhotoGallery({ photos, onToggleSelect, editable = false }: PhotoGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Add token to image URLs for authentication
+  const addTokenToUrl = (url: string): string => {
+    const token = localStorage.getItem('authToken');
+    if (!token || !url) return url;
+
+    // Only add token to our API URLs, not external ones
+    if (url.startsWith('/api/immich/')) {
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}token=${encodeURIComponent(token)}`;
+    }
+    return url;
+  };
+
   // Close modal on ESC key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,8 +45,9 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
   }
 
   const handleImageClick = (photo: Photo) => {
-    console.log('Opening full-size image:', photo.immichUrl);
-    setSelectedImage(photo.immichUrl);
+    const fullUrl = addTokenToUrl(photo.immichUrl);
+    console.log('Opening full-size image:', fullUrl);
+    setSelectedImage(fullUrl);
   };
 
   return (
@@ -46,7 +60,7 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
             onClick={() => handleImageClick(photo)}
           >
             <img
-              src={photo.thumbnailUrl || photo.immichUrl}
+              src={addTokenToUrl(photo.thumbnailUrl || photo.immichUrl)}
               alt={`Zdjęcie z ${new Date(photo.takenAt).toLocaleDateString()}`}
               className="w-full h-full object-cover transition-transform group-hover:scale-110"
             />

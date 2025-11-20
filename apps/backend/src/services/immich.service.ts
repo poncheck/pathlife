@@ -59,11 +59,27 @@ export class ImmichService {
   }
 
   getAssetThumbnailUrl(assetId: string): string {
-    return `${this.baseUrl}/api/asset/thumbnail/${assetId}`;
+    // Return local proxy URL instead of direct Immich URL
+    return `/api/immich/thumbnail/${assetId}`;
   }
 
   getAssetUrl(assetId: string): string {
-    return `${this.baseUrl}/api/asset/file/${assetId}`;
+    // Return local proxy URL instead of direct Immich URL
+    return `/api/immich/asset/${assetId}`;
+  }
+
+  async fetchAssetThumbnail(assetId: string): Promise<Buffer> {
+    const response = await this.client.get(`/api/asset/thumbnail/${assetId}`, {
+      responseType: 'arraybuffer',
+    });
+    return Buffer.from(response.data);
+  }
+
+  async fetchAsset(assetId: string): Promise<Buffer> {
+    const response = await this.client.get(`/api/asset/file/${assetId}`, {
+      responseType: 'arraybuffer',
+    });
+    return Buffer.from(response.data);
   }
 
   async testConnection(): Promise<boolean> {

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import diaryRoutes from './routes/diary.routes';
 import syncRoutes from './routes/sync.routes';
+import immichRoutes from './routes/immich.routes';
 import { initScheduler } from './scheduler';
 import logger from './utils/logger';
 
@@ -36,6 +37,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API routes
 app.use('/api/diary', diaryRoutes);
+app.use('/api/immich', immichRoutes);
 app.use('/api', syncRoutes);
 
 // 404 handler

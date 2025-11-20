@@ -25,6 +25,22 @@ api.interceptors.request.use(
   }
 );
 
+// Handle 401 errors - redirect to login
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear invalid token
+      localStorage.removeItem('authToken');
+      // Redirect to login if not already there
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const diaryApi = {
   // Get diary entry for a specific date
   getEntry: async (date: string): Promise<DiaryEntry> => {

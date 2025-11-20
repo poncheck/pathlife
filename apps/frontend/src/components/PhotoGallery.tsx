@@ -39,7 +39,7 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
   if (photos.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        Brak zdjęć z tego dnia
+        No photos from this day
       </div>
     );
   }
@@ -61,7 +61,7 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
           >
             <img
               src={addTokenToUrl(photo.thumbnailUrl || photo.immichUrl)}
-              alt={`Zdjęcie z ${new Date(photo.takenAt).toLocaleDateString()}`}
+              alt={`Photo from ${new Date(photo.takenAt).toLocaleDateString()}`}
               className="w-full h-full object-cover transition-transform group-hover:scale-110"
             />
 
@@ -103,24 +103,24 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
           <div className="relative max-w-full max-h-full flex items-center justify-center">
             <img
               src={selectedImage}
-              alt="Pełny rozmiar"
+              alt="Full size"
               className="max-w-full max-h-[90vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
               onError={(e) => {
                 console.error('Error loading full-size image:', selectedImage);
-                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="white"%3EBłąd ładowania%3C/text%3E%3C/svg%3E';
+                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="white"%3ELoading error%3C/text%3E%3C/svg%3E';
               }}
             />
           </div>
           <button
             className="absolute top-4 right-4 text-white text-5xl font-light hover:text-gray-300 bg-black/50 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
             onClick={() => setSelectedImage(null)}
-            aria-label="Zamknij"
+            aria-label="Close"
           >
             ×
           </button>
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
-            Kliknij poza zdjęciem, naciśnij ESC lub × aby zamknąć
+            Click outside the photo, press ESC or × to close
           </div>
         </div>
       )}

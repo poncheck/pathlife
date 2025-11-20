@@ -12,9 +12,11 @@ import {
   eachDayOfInterval,
   isSameMonth,
   isSameDay,
-  format
+  format,
+  parse,
+  isValid
 } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function Timeline() {
@@ -45,7 +47,7 @@ export function Timeline() {
       );
       setEntries(data);
     } catch (err: any) {
-      setError(err.message || 'Nie udało się załadować wpisów');
+      setError(err.message || 'Failed to load entries');
     } finally {
       setLoading(false);
     }
@@ -78,28 +80,46 @@ export function Timeline() {
     navigate(`/day/${today}`);
   };
 
-  const weekDays = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nie'];
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const calendarDays = getCalendarDays();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-gray-600">Ładowanie...</div>
+        <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
   }
 
+  const handleDateJump = (dateString: string) => {
+    if (!dateString) return;
+
+    const selectedDate = parse(dateString, 'yyyy-MM-dd', new Date());
+    if (isValid(selectedDate)) {
+      setCurrentMonth(selectedDate);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Twój Pamiętnik</h1>
-        <button
-          onClick={handleTodayClick}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-        >
-          <Calendar size={18} />
-          Dzisiaj
-        </button>
+        <h1 className="text-3xl font-bold">Your Diary</h1>
+        <div className="flex items-center gap-3">
+          <input
+            type="date"
+            onChange={(e) => handleDateJump(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors"
+            max={new Date().toISOString().split('T')[0]}
+            title="Jump to date"
+          />
+          <button
+            onClick={handleTodayClick}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          >
+            <Calendar size={18} />
+            Today
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -113,18 +133,18 @@ export function Timeline() {
         <button
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
           className="p-3 bg-white rounded-lg hover:bg-gray-100 shadow-sm transition-colors"
-          aria-label="Poprzedni miesiąc"
+          aria-label="Previous month"
         >
           <ChevronLeft size={24} />
         </button>
         <h2 className="text-2xl font-semibold min-w-[250px] text-center">
-          {format(currentMonth, 'LLLL yyyy', { locale: pl })}
+          {format(currentMonth, 'LLLL yyyy', { locale: enUS })}
         </h2>
         <button
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
           className="p-3 bg-white rounded-lg hover:bg-gray-100 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={currentMonth >= new Date()}
-          aria-label="Następny miesiąc"
+          aria-label="Next month"
         >
           <ChevronRight size={24} />
         </button>
@@ -175,10 +195,10 @@ export function Timeline() {
                   {(hasPhotos || hasActivities) && (
                     <div className="flex gap-1 mt-1">
                       {hasPhotos && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" title="Zdjęcia" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" title="Photos" />
                       )}
                       {hasActivities && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" title="Aktywności" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" title="Activities" />
                       )}
                     </div>
                   )}
@@ -200,15 +220,15 @@ export function Timeline() {
       <div className="mt-6 flex items-center justify-center gap-6 text-sm text-gray-600">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-blue-500" />
-          <span>Zdjęcia</span>
+          <span>Photos</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-green-500" />
-          <span>Aktywności</span>
+          <span>Activities</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded ring-2 ring-blue-500" />
-          <span>Dzisiaj</span>
+          <span>Today</span>
         </div>
       </div>
     </div>

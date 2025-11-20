@@ -26,7 +26,7 @@ export function OnThisDay() {
       const data = await diaryApi.getOnThisDay(today);
       setEntries(data);
     } catch (err: any) {
-      setError(err.message || 'Nie udało się załadować wpisów');
+      setError(err.message || 'Failed to load entries');
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ export function OnThisDay() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-gray-600">Ładowanie...</div>
+        <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
   }
@@ -56,8 +56,8 @@ export function OnThisDay() {
           <ArrowLeft size={24} />
         </button>
         <div>
-          <h1 className="text-3xl font-bold">W tym dniu</h1>
-          <p className="text-gray-600 mt-1">Zobacz co robiłeś w poprzednich latach</p>
+          <h1 className="text-3xl font-bold">On This Day</h1>
+          <p className="text-gray-600 mt-1">See what you did in previous years</p>
         </div>
       </div>
 
@@ -69,7 +69,7 @@ export function OnThisDay() {
 
       {entries.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
-          Brak wpisów z tego dnia w poprzednich latach
+          No entries from this day in previous years
         </div>
       ) : (
         <div className="space-y-8">
@@ -87,12 +87,12 @@ export function OnThisDay() {
                   <Clock size={24} className="text-blue-600" />
                   <div>
                     <h2 className="text-2xl font-bold">
-                      {yearsAgo} {yearsAgo === 1 ? 'rok' : yearsAgo < 5 ? 'lata' : 'lat'} temu
+                      {yearsAgo} {yearsAgo === 1 ? 'year' : 'years'} ago
                     </h2>
                     <p className="text-gray-600">{formatDate(entry.date)}</p>
                   </div>
                   <div className="ml-auto text-sm text-blue-600 font-medium">
-                    Kliknij aby zobaczyć więcej →
+                    Click to see more →
                   </div>
                 </div>
 
@@ -104,7 +104,7 @@ export function OnThisDay() {
 
                 {entry.photos.length > 0 && (
                   <div className="mb-6" onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-lg font-semibold mb-3">Zdjęcia</h3>
+                    <h3 className="text-lg font-semibold mb-3">Photos</h3>
                     <PhotoGallery
                       photos={entry.photos}
                       onToggleSelect={() => {}}
@@ -115,7 +115,7 @@ export function OnThisDay() {
 
                 {entry.activities.length > 0 && (
                   <div onClick={(e) => e.stopPropagation()}>
-                    <h3 className="text-lg font-semibold mb-3">Aktywności</h3>
+                    <h3 className="text-lg font-semibold mb-3">Activities</h3>
                     <ActivityList activities={entry.activities} />
                   </div>
                 )}

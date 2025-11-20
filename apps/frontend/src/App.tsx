@@ -37,21 +37,21 @@ function Navigation() {
               to="/"
               className="text-gray-700 hover:text-blue-600 transition-colors"
             >
-              Kalendarz
+              Calendar
             </Link>
             <Link
               to="/on-this-day"
               className="text-gray-700 hover:text-blue-600 transition-colors flex items-center gap-2"
             >
               <Clock size={18} />
-              W tym dniu
+              On This Day
             </Link>
             <Link
               to="/settings"
               className="text-gray-700 hover:text-blue-600 transition-colors flex items-center gap-2"
             >
               <SettingsIcon size={18} />
-              Ustawienia
+              Settings
             </Link>
 
             {/* User menu */}
@@ -63,7 +63,7 @@ function Navigation() {
               <button
                 onClick={logout}
                 className="text-gray-700 hover:text-red-600 transition-colors flex items-center gap-2"
-                title="Wyloguj się"
+                title="Log out"
               >
                 <LogOut size={18} />
               </button>
@@ -87,21 +87,21 @@ function Navigation() {
               className="block py-2 text-gray-700 hover:text-blue-600"
               onClick={() => setMenuOpen(false)}
             >
-              Kalendarz
+              Calendar
             </Link>
             <Link
               to="/on-this-day"
               className="block py-2 text-gray-700 hover:text-blue-600"
               onClick={() => setMenuOpen(false)}
             >
-              W tym dniu
+              On This Day
             </Link>
             <Link
               to="/settings"
               className="block py-2 text-gray-700 hover:text-blue-600"
               onClick={() => setMenuOpen(false)}
             >
-              Ustawienia
+              Settings
             </Link>
             <button
               onClick={() => {
@@ -110,7 +110,7 @@ function Navigation() {
               }}
               className="block w-full text-left py-2 text-red-600 hover:text-red-700"
             >
-              Wyloguj się
+              Log out
             </button>
           </div>
         )}

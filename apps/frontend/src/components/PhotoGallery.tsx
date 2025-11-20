@@ -19,6 +19,11 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
     );
   }
 
+  const handleImageClick = (photo: Photo) => {
+    console.log('Opening full-size image:', photo.immichUrl);
+    setSelectedImage(photo.immichUrl);
+  };
+
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -26,7 +31,7 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
           <div
             key={photo.id}
             className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group"
-            onClick={() => setSelectedImage(photo.immichUrl)}
+            onClick={() => handleImageClick(photo)}
           >
             <img
               src={photo.thumbnailUrl || photo.immichUrl}
@@ -61,20 +66,36 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
 
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4"
+          onClick={(e) => {
+            // Only close if clicking the backdrop, not the image
+            if (e.target === e.currentTarget) {
+              setSelectedImage(null);
+            }
+          }}
         >
-          <img
-            src={selectedImage}
-            alt="Pełny rozmiar"
-            className="max-w-full max-h-full object-contain"
-          />
+          <div className="relative max-w-full max-h-full flex items-center justify-center">
+            <img
+              src={selectedImage}
+              alt="Pełny rozmiar"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+              onError={(e) => {
+                console.error('Error loading full-size image:', selectedImage);
+                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="white"%3EBłąd ładowania%3C/text%3E%3C/svg%3E';
+              }}
+            />
+          </div>
           <button
-            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300"
+            className="absolute top-4 right-4 text-white text-5xl font-light hover:text-gray-300 bg-black/50 w-12 h-12 rounded-full flex items-center justify-center transition-colors"
             onClick={() => setSelectedImage(null)}
+            aria-label="Zamknij"
           >
             ×
           </button>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
+            Kliknij poza zdjęciem lub naciśnij × aby zamknąć
+          </div>
         </div>
       )}
     </>

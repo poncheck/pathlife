@@ -64,10 +64,13 @@ router.get('/entries', async (req: Request, res: Response) => {
       },
       include: {
         photos: {
-          where: { selected: true },
           take: 3,
+          orderBy: { takenAt: 'asc' },
         },
-        activities: true,
+        activities: {
+          take: 3,
+          orderBy: { startDate: 'asc' },
+        },
         _count: {
           select: {
             photos: true,

@@ -47,16 +47,22 @@ export class SyncService {
         });
       }
 
-      // Sync photos from Immich
-      await this.syncPhotos(diaryEntry.id, date);
+      // Sync from each source independently - don't let one failure stop others
+      const results = await Promise.allSettled([
+        this.syncPhotos(diaryEntry.id, date),
+        this.syncActivities(diaryEntry.id, date),
+        this.syncLocations(diaryEntry.id, date),
+      ]);
 
-      // Sync activities from Strava
-      await this.syncActivities(diaryEntry.id, date);
+      // Log any failures but don't throw
+      results.forEach((result, index) => {
+        const source = ['Immich', 'Strava', 'Traccar'][index];
+        if (result.status === 'rejected') {
+          logger.error(`${source} sync failed for ${format(dateKey, 'yyyy-MM-dd')}:`, result.reason);
+        }
+      });
 
-      // Sync locations from Traccar
-      await this.syncLocations(diaryEntry.id, date);
-
-      logger.info(`Successfully synced data for ${format(dateKey, 'yyyy-MM-dd')}`);
+      logger.info(`Completed sync for ${format(dateKey, 'yyyy-MM-dd')}`);
     } catch (error: any) {
       logger.error(`Error syncing date ${format(dateKey, 'yyyy-MM-dd')}:`, error.message);
       throw error;

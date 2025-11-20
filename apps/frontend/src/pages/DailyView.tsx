@@ -32,7 +32,7 @@ export function DailyView() {
       setEntry(data);
       setDescription(data.description || '');
     } catch (err: any) {
-      setError(err.message || 'Nie udało się załadować wpisu');
+      setError(err.message || 'Failed to load entry');
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export function DailyView() {
       await diaryApi.updateDescription(date, description);
       await loadEntry();
     } catch (err: any) {
-      setError(err.message || 'Nie udało się zapisać opisu');
+      setError(err.message || 'Failed to save description');
     } finally {
       setSaving(false);
     }
@@ -57,7 +57,7 @@ export function DailyView() {
       await diaryApi.togglePhoto(photoId);
       await loadEntry();
     } catch (err: any) {
-      setError(err.message || 'Nie udało się zmienić wyboru zdjęcia');
+      setError(err.message || 'Failed to toggle photo selection');
     }
   };
 
@@ -82,7 +82,7 @@ export function DailyView() {
         setSyncing(false);
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Nie udało się zsynchronizować danych');
+      setError(err.message || 'Failed to synchronize data');
       setSyncing(false);
     }
   };
@@ -90,7 +90,7 @@ export function DailyView() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-gray-600">Ładowanie...</div>
+        <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
   }
@@ -106,7 +106,7 @@ export function DailyView() {
   if (!entry) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-gray-600">Brak wpisu dla tej daty</div>
+        <div className="text-xl text-gray-600">No entry for this date</div>
       </div>
     );
   }
@@ -130,7 +130,7 @@ export function DailyView() {
               className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
             >
               <Calendar size={16} />
-              Pokaż kalendarz
+              Show calendar
             </button>
             <button
               onClick={handleSyncDay}
@@ -138,7 +138,7 @@ export function DailyView() {
               className="text-sm text-green-600 hover:text-green-800 flex items-center gap-1 disabled:text-gray-400"
             >
               <RefreshCw size={16} className={syncing ? 'animate-spin' : ''} />
-              {syncing ? 'Synchronizowanie...' : 'Synchronizuj dane'}
+              {syncing ? 'Synchronizing...' : 'Synchronize data'}
             </button>
           </div>
         </div>
@@ -155,20 +155,20 @@ export function DailyView() {
       {entry.photos.length === 0 && entry.activities.length === 0 && entry.locations.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
           <p className="text-yellow-800">
-            Brak danych dla tego dnia. Kliknij "Synchronizuj dane" aby pobrać zdjęcia z Immich, aktywności ze Stravy i lokalizacje z Traccara.
+            No data for this day. Click "Synchronize data" to fetch photos from Immich, activities from Strava, and locations from Traccar.
           </p>
         </div>
       )}
 
       {/* Description */}
       <div className="mb-8">
-        <label className="block text-lg font-semibold mb-2">Opis dnia</label>
+        <label className="block text-lg font-semibold mb-2">Day description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           rows={4}
-          placeholder="Dodaj opis tego dnia..."
+          placeholder="Add description for this day..."
         />
         <button
           onClick={handleSaveDescription}
@@ -176,14 +176,14 @@ export function DailyView() {
           className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"
         >
           <Save size={18} />
-          {saving ? 'Zapisywanie...' : 'Zapisz'}
+          {saving ? 'Saving...' : 'Save'}
         </button>
       </div>
 
       {/* Photos */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">
-          Zdjęcia ({entry.photos.length})
+          Photos ({entry.photos.length})
         </h2>
         <PhotoGallery
           photos={entry.photos}
@@ -196,7 +196,7 @@ export function DailyView() {
       {entry.activities.length > 0 && (
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">
-            Aktywności ({entry.activities.length})
+            Activities ({entry.activities.length})
           </h2>
           <ActivityList activities={entry.activities} />
         </div>
@@ -206,7 +206,7 @@ export function DailyView() {
       {entry.locations.length > 0 && (
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">
-            Mapa ({entry.locations.length} punktów)
+            Map ({entry.locations.length} points)
           </h2>
           <LocationMap locations={entry.locations} />
         </div>

@@ -10,7 +10,7 @@ export function ActivityList({ activities }: ActivityListProps) {
   if (activities.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        Brak aktywności z tego dnia
+        No activities from this day
       </div>
     );
   }

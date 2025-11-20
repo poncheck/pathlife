@@ -58,11 +58,11 @@ export class ImmichService {
     }
   }
 
-  async getAssetThumbnailUrl(assetId: string): string {
+  getAssetThumbnailUrl(assetId: string): string {
     return `${this.baseUrl}/api/asset/thumbnail/${assetId}`;
   }
 
-  async getAssetUrl(assetId: string): string {
+  getAssetUrl(assetId: string): string {
     return `${this.baseUrl}/api/asset/file/${assetId}`;
   }
 

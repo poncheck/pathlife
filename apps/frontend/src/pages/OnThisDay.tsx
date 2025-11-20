@@ -75,10 +75,13 @@ export function OnThisDay() {
         <div className="space-y-8">
           {entries.map((entry) => {
             const yearsAgo = getYearsAgo(entry.date);
+            const entryDate = new Date(entry.date).toISOString().split('T')[0];
+
             return (
               <div
                 key={entry.id}
-                className="bg-white rounded-lg shadow-md p-6"
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate(`/day/${entryDate}`)}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <Clock size={24} className="text-blue-600" />
@@ -87,6 +90,9 @@ export function OnThisDay() {
                       {yearsAgo} {yearsAgo === 1 ? 'rok' : yearsAgo < 5 ? 'lata' : 'lat'} temu
                     </h2>
                     <p className="text-gray-600">{formatDate(entry.date)}</p>
+                  </div>
+                  <div className="ml-auto text-sm text-blue-600 font-medium">
+                    Kliknij aby zobaczyć więcej →
                   </div>
                 </div>
 
@@ -97,7 +103,7 @@ export function OnThisDay() {
                 )}
 
                 {entry.photos.length > 0 && (
-                  <div className="mb-6">
+                  <div className="mb-6" onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-lg font-semibold mb-3">Zdjęcia</h3>
                     <PhotoGallery
                       photos={entry.photos}
@@ -108,7 +114,7 @@ export function OnThisDay() {
                 )}
 
                 {entry.activities.length > 0 && (
-                  <div>
+                  <div onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-lg font-semibold mb-3">Aktywności</h3>
                     <ActivityList activities={entry.activities} />
                   </div>

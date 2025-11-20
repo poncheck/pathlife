@@ -77,6 +77,13 @@ export class StravaService {
         },
       });
 
+      // Log rate limit info from headers
+      const rateLimit = {
+        limit: response.headers['x-ratelimit-limit'],
+        usage: response.headers['x-ratelimit-usage'],
+      };
+      logger.info(`Strava rate limit: ${rateLimit.usage}/${rateLimit.limit} (usage/limit)`);
+
       logger.info(`Found ${response.data.length} activities from Strava`);
       return response.data;
     } catch (error: any) {
@@ -85,6 +92,14 @@ export class StravaService {
         await this.refreshAccessToken();
         return this.getActivitiesByDate(date);
       }
+
+      if (error.response?.status === 429) {
+        // Rate limit exceeded
+        const rateLimit = error.response.headers['x-ratelimit-usage'] || 'unknown';
+        logger.error(`Strava API rate limit exceeded. Usage: ${rateLimit}. Strava allows 100 requests per 15 minutes and 1000 per day.`);
+        throw new Error(`Strava rate limit exceeded. Please reduce sync frequency. Current usage: ${rateLimit}`);
+      }
+
       logger.error('Error fetching Strava activities:', error.message);
       throw new Error(`Failed to fetch Strava activities: ${error.message}`);
     }
@@ -143,6 +158,12 @@ export class StravaService {
         logger.warn(`GPX not available for activity ${activityId} (may not have GPS data)`);
         throw new Error('GPX not available for this activity');
       }
+
+      if (error.response?.status === 429) {
+        logger.error(`Strava rate limit exceeded while downloading GPX for activity ${activityId}`);
+        throw new Error('Strava rate limit exceeded');
+      }
+
       logger.error(`Error downloading GPX for activity ${activityId}:`, error.message);
       throw new Error(`Failed to download GPX: ${error.message}`);
     }

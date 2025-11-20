@@ -1,136 +1,132 @@
 # PathLife 📸🏃📍
 
-**Osobisty pamiętnik cyfrowy** - automatycznie tworzy wpisy dzienne z Twoich zdjęć, aktywności sportowych i danych GPS.
+**Your Personal Digital Diary** - Automatically creates daily entries from your photos, sports activities, and GPS data.
 
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/react-18-blue.svg)](https://reactjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ✨ Funkcje
+## ✨ Features
 
-### 🔒 Bezpieczeństwo
-- **System logowania** - JWT authentication z bcrypt hashing
-- **Szyfrowane dane** - API credentials zaszyfrowane AES-256
-- **Panel administracyjny** - zarządzanie ustawieniami przez WWW
-- **Zabezpieczone API** - wszystkie endpointy wymagają autentykacji
+### 🔒 Security
+- **Authentication System** - JWT authentication with bcrypt password hashing
+- **Encrypted Storage** - API credentials encrypted with AES-256
+- **Web Admin Panel** - Manage all settings through the web interface
+- **Protected API** - All endpoints require authentication
 
-### 📅 Kalendarz miesięczny
-- **Widok kratkowy** - przejrzysty kalendarz z całym miesiącem
-- **Wizualne wskaźniki** - kropki dla zdjęć i aktywności
-- **Badge z liczbą** - dni z wieloma zdjęciami
-- **Dzień dzisiejszy** - wyróżniony niebieskim pierścieniem
+### 📅 Monthly Calendar
+- **Grid View** - Clean calendar showing the entire month
+- **Visual Indicators** - Dots for photos and activities
+- **Photo Count Badge** - Days with many photos get a badge
+- **Today Highlight** - Current day marked with blue ring
 
-### 📸 Zdjęcia z Immich
-- Automatyczna synchronizacja zdjęć z Immich
-- Miniaturki i pełne wersje przez proxy
-- Wybór zdjęć do wyświetlenia
-- Galeria z lightbox modal
-- Metadata EXIF (lokalizacja, czas)
+### 📸 Photos from Immich
+- Automatic synchronization of photos from Immich
+- Thumbnails and full versions via proxy
+- Select photos to display
+- Gallery with lightbox modal
+- EXIF metadata (location, time)
 
-### 🏃 Aktywności ze Strava
-- Import aktywności sportowych
-- **Pobieranie plików GPX** - lokalne zapisywanie tras
-- Statystyki: dystans, czas, przewyższenie
+### 🏃 Activities from Strava
+- Import sports activities
+- **Download GPX files** - Locally save activity routes
+- Statistics: distance, time, elevation gain
 - Polyline map visualization
-- Respektowanie limitów API (100/15min, 1000/dzień)
+- Respects API limits (100/15min, 1000/day)
 
-### 📍 GPS z Traccar
-- Śledzenie lokalizacji z Traccar
-- **Generowanie plików GPX** - dzienne trasy GPS
-- Interaktywne mapy z Leaflet
-- Wizualizacja tras
-- Adresy i prędkość
+### 📍 GPS from Traccar
+- Location tracking from Traccar
+- **Generate GPX files** - Daily GPS tracks
+- Interactive maps with Leaflet
+- Route visualization
+- Addresses and speed data
 
-### 🎯 Dodatkowe funkcje
-- **"W tym dniu"** - co się wydarzyło X lat temu
-- **Notatki** - opis każdego dnia
-- Automatyczna synchronizacja (configurable cron)
-- Export GPX do innych aplikacji
+### 🎯 Additional Features
+- **"On This Day"** - What happened X years ago
+- **Notes** - Daily descriptions
+- Automatic synchronization (configurable cron)
+- Export GPX for other apps
 - Responsive design (desktop + mobile)
+- Historical sync from any year (e.g., 1986)
 
-## 🚀 Szybki start z Docker
+## 🚀 Quick Start with Docker
 
-### Wymagania
+### Requirements
 
-- Docker i Docker Compose
-- Immich instance z API key (wymagane)
-- Strava API credentials (opcjonalne)
-- Traccar instance (opcjonalne)
+- Docker and Docker Compose
+- Immich instance with API key (required)
+- Strava API credentials (optional)
+- Traccar instance (optional)
 
-### Instalacja
+### Installation
 
-1. **Sklonuj repozytorium**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/poncheck/pathlife.git
    cd pathlife
    ```
 
-2. **Skonfiguruj zmienne środowiskowe**
+2. **Configure environment variables**
    ```bash
    cp .env.example .env
    nano .env
    ```
 
-   **⚠️ WAŻNE:** Zmień domyślne hasła i klucze!
+   **⚠️ IMPORTANT:** Change default passwords and keys!
    ```env
-   # Bezpieczeństwo (wygeneruj: openssl rand -base64 32)
-   JWT_SECRET=twoj-super-tajny-klucz-min-32-znaki
-   ENCRYPTION_KEY=inny-tajny-klucz-32-znaki
-   ADMIN_PASSWORD=silne-haslo
+   # Security (generate: openssl rand -base64 32)
+   JWT_SECRET=your-super-secret-key-min-32-chars
+   ENCRYPTION_KEY=another-secret-key-32-chars
+   ADMIN_PASSWORD=strong-password
 
-   # Immich (wymagane)
+   # Immich (required)
    IMMICH_URL=https://immich.example.com
-   IMMICH_API_KEY=twoj-klucz-api
+   IMMICH_API_KEY=your-api-key
 
-   # Strava (opcjonalne)
+   # Strava (optional)
    STRAVA_CLIENT_ID=123456
    STRAVA_CLIENT_SECRET=secret
    STRAVA_REFRESH_TOKEN=token
 
-   # Traccar (opcjonalne)
+   # Traccar (optional)
    TRACCAR_URL=https://traccar.example.com
    TRACCAR_EMAIL=user@example.com
-   TRACCAR_PASSWORD=haslo
+   TRACCAR_PASSWORD=password
    ```
 
-3. **Uruchom aplikację**
+3. **Start the application**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
-4. **Dostęp do aplikacji**
-   - 🌐 Frontend: **http://localhost**
-   - 🔧 Backend API: **http://localhost:3000**
-   - 💚 Health check: **http://localhost:3000/health**
+4. **Access the application**
+   - 🌐 Frontend: **http://localhost:3031**
+   - 🔧 Backend API: **http://localhost:3030**
+   - 💚 Health check: **http://localhost:3030/health**
 
-5. **Pierwsze logowanie**
+5. **First login**
 
-   Domyślne dane logowania (ZMIEŃ PO PIERWSZYM LOGOWANIU!):
+   Default credentials (CHANGE AFTER FIRST LOGIN!):
    - Username: `admin`
-   - Password: `admin123`
+   - Password: Generated on first run (check logs)
 
-6. **Konfiguracja API**
+6. **Configure APIs**
 
-   Po zalogowaniu:
-   - Kliknij **"Ustawienia"** w menu
-   - Wypełnij dane API (Immich/Strava/Traccar)
-   - Kliknij **"Zapisz ustawienia"**
+   After logging in:
+   - Click **"Settings"** in the menu
+   - Fill in API credentials (Immich/Strava/Traccar)
+   - Click **"Save Settings"**
 
-7. **Pierwsza synchronizacja**
+7. **First synchronization**
 
-   Kliknij **"Synchronizuj dane"** na stronie głównej lub użyj API:
-   ```bash
-   curl -X POST http://localhost:3000/api/sync \
-     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "startDate": "2025-01-01",
-       "endDate": "2025-11-20"
-     }'
-   ```
+   In Settings, click sync buttons:
+   - **Last 30 days** - Quick sync
+   - **Last 90 days** - Recent data
+   - **Last year** - Full year
+   - **From 1986 🚀** - Complete historical sync
 
-## 🏗️ Architektura
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -160,7 +156,7 @@
 └──────────────┘
 ```
 
-### Stack technologiczny
+### Technology Stack
 
 **Backend:**
 - Node.js 20 + Express
@@ -187,93 +183,95 @@
 - nginx (reverse proxy)
 - PostgreSQL (database)
 
-## 📊 Struktura bazy danych
+## 📊 Database Schema
 
 ```sql
--- Użytkownicy (authentication)
+-- Users (authentication)
 User (id, username, password_hash, email, role)
 
--- Zaszyfrowane ustawienia API
+-- Encrypted API settings
 Settings (id, key, encrypted_value, type)
 
--- Wpisy dziennika
+-- Diary entries
 DiaryEntry (id, date, description, gpxPath)
   ├── Photo (immichId, url, thumbnailUrl, selected)
   ├── Activity (stravaId, name, distance, gpxPath)
   └── Location (latitude, longitude, address, speed)
 
--- Historia synchronizacji
+-- Synchronization history
 SyncLog (source, status, itemCount, timestamp)
 ```
 
-## 🔐 Bezpieczeństwo
+## 🔐 Security
 
-### Domyślne ustawienia
+### Default Settings
 - Username: `admin`
-- Password: `admin123`
+- Password: Generated on first run (check container logs)
 
-**⚠️ ZMIEŃ TE DANE PO PIERWSZYM LOGOWANIU!**
+**⚠️ CHANGE THESE AFTER FIRST LOGIN!**
 
-### Produkcja
+### Production Setup
 
-1. **Wygeneruj bezpieczne klucze:**
+1. **Generate secure keys:**
    ```bash
-   openssl rand -base64 32  # dla JWT_SECRET
-   openssl rand -base64 32  # dla ENCRYPTION_KEY
+   openssl rand -base64 32  # for JWT_SECRET
+   openssl rand -base64 32  # for ENCRYPTION_KEY
    ```
 
-2. **Ustaw w `.env`:**
+2. **Set in `.env`:**
    ```env
-   JWT_SECRET=wygenerowany-klucz-1
-   ENCRYPTION_KEY=wygenerowany-klucz-2
-   ADMIN_PASSWORD=bardzo-silne-haslo
+   JWT_SECRET=generated-key-1
+   ENCRYPTION_KEY=generated-key-2
+   ADMIN_PASSWORD=very-strong-password
    ```
 
-3. **Użyj HTTPS:**
-   - Postaw aplikację za reverse proxy (nginx, Traefik, Caddy)
-   - Włącz SSL/TLS
-   - Ustaw proper CORS headers
+3. **Use HTTPS:**
+   - Put application behind reverse proxy (nginx, Traefik, Caddy)
+   - Enable SSL/TLS
+   - Set proper CORS headers
 
-### Co jest szyfrowane?
-- ✅ Hasła użytkowników (bcrypt, 10 rounds)
+### What's Encrypted?
+- ✅ User passwords (bcrypt, 10 rounds)
 - ✅ API keys (AES-256)
-- ✅ Hasła do zewnętrznych serwisów (AES-256)
-- ✅ JWT tokeny (podpisane, 7 dni ważności)
+- ✅ External service passwords (AES-256)
+- ✅ JWT tokens (signed, 7 days validity)
 
-## 🔧 Konfiguracja
+## 🔧 Configuration
 
-### Zmienne środowiskowe
+### Environment Variables
 
-| Zmienna | Wymagana | Opis |
-|---------|----------|------|
-| `JWT_SECRET` | Tak | Klucz do podpisywania JWT (min 32 znaki) |
-| `ENCRYPTION_KEY` | Tak | Klucz AES do szyfrowania (32 znaki) |
-| `ADMIN_PASSWORD` | Tak | Hasło domyślnego admina |
-| `IMMICH_URL` | Tak | URL instancji Immich |
-| `IMMICH_API_KEY` | Tak | Klucz API Immich |
-| `STRAVA_CLIENT_ID` | Nie | Strava Client ID |
-| `STRAVA_CLIENT_SECRET` | Nie | Strava Client Secret |
-| `STRAVA_REFRESH_TOKEN` | Nie | Strava Refresh Token |
-| `TRACCAR_URL` | Nie | URL instancji Traccar |
-| `TRACCAR_EMAIL` | Nie | Email do Traccar |
-| `TRACCAR_PASSWORD` | Nie | Hasło do Traccar |
-| `SYNC_SCHEDULE` | Nie | Cron schedule (default: `0 */6 * * *`) |
+| Variable | Required | Description |
+|---------|----------|-------------|
+| `JWT_SECRET` | Yes | Key for signing JWT (min 32 chars) |
+| `ENCRYPTION_KEY` | Yes | AES key for encryption (32 chars) |
+| `ADMIN_PASSWORD` | Yes | Default admin password |
+| `IMMICH_URL` | Yes* | Immich instance URL |
+| `IMMICH_API_KEY` | Yes* | Immich API key |
+| `STRAVA_CLIENT_ID` | No | Strava Client ID |
+| `STRAVA_CLIENT_SECRET` | No | Strava Client Secret |
+| `STRAVA_REFRESH_TOKEN` | No | Strava Refresh Token |
+| `TRACCAR_URL` | No | Traccar instance URL |
+| `TRACCAR_EMAIL` | No | Traccar email |
+| `TRACCAR_PASSWORD` | No | Traccar password |
+| `SYNC_SCHEDULE` | No | Cron schedule (default: `0 */6 * * *`) |
 
-### Harmonogram synchronizacji
+*Can be configured via web interface after first login
+
+### Synchronization Schedule
 
 Format: cron expression
 
 ```bash
-# Co 6 godzin (zalecane)
+# Every 6 hours (recommended)
 SYNC_SCHEDULE="0 */6 * * *"
 
-# Co 12 godzin (bezpieczne dla Strava limits)
+# Every 12 hours (safe for Strava limits)
 SYNC_SCHEDULE="0 */12 * * *"
 
-# Dwa razy dziennie
+# Twice daily
 SYNC_SCHEDULE="0 6,18 * * *"
 
-# Raz dziennie o 6:00
+# Once daily at 6:00 AM
 SYNC_SCHEDULE="0 6 * * *"
 ```
 
@@ -281,22 +279,22 @@ SYNC_SCHEDULE="0 6 * * *"
 - 100 requests / 15 minutes
 - 1000 requests / day
 
-Unikaj zbyt częstej synchronizacji!
+Avoid too frequent synchronization!
 
-## 📂 Struktura projektu
+## 📂 Project Structure
 
 ```
 pathlife/
 ├── docker-compose.yml       # Orchestration
-├── .env                     # Konfiguracja (nie commituj!)
-├── .env.example             # Szablon konfiguracji
+├── .env                     # Configuration (don't commit!)
+├── .env.example             # Configuration template
 │
 ├── apps/
 │   ├── backend/
 │   │   ├── Dockerfile
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma     # Model bazy danych
-│   │   │   └── migrations/       # Migracje SQL
+│   │   │   ├── schema.prisma     # Database model
+│   │   │   └── migrations/       # SQL migrations
 │   │   └── src/
 │   │       ├── index.ts           # Entry point
 │   │       ├── middleware/        # Auth middleware
@@ -318,60 +316,63 @@ pathlife/
 
 ## 🎯 API Endpoints
 
-### Public (bez autentykacji)
+### Public (no authentication)
 - `GET /health` - Health check
-- `POST /api/auth/login` - Logowanie
+- `POST /api/auth/login` - Login
 
-### Protected (wymaga JWT token)
-- `GET /api/auth/me` - Informacje o użytkowniku
-- `POST /api/auth/change-password` - Zmiana hasła
-- `GET /api/diary/entries/:date` - Wpis dla daty
-- `GET /api/diary/entries` - Lista wpisów
-- `PATCH /api/diary/entries/:date` - Aktualizacja opisu
-- `POST /api/sync` - Synchronizacja danych
-- `GET /api/settings/:type` - Pobierz ustawienia
-- `PUT /api/settings/:key` - Zaktualizuj ustawienie
-- `POST /api/settings/bulk` - Masowa aktualizacja
+### Protected (requires JWT token)
+- `GET /api/auth/me` - User information
+- `POST /api/auth/change-password` - Change password
+- `GET /api/diary/entries/:date` - Entry for specific date
+- `GET /api/diary/entries` - List of entries
+- `PATCH /api/diary/entries/:date` - Update description
+- `POST /api/sync` - Sync data for date range
+- `POST /api/sync/today` - Sync today
+- `POST /api/sync/last-days/:days` - Sync last N days
+- `POST /api/sync/all` - Sync last 30 days
+- `GET /api/settings/:type` - Get settings
+- `PUT /api/settings/:key` - Update setting
+- `POST /api/settings/bulk` - Bulk update
 
-## 🛠️ Przydatne komendy
+## 🛠️ Useful Commands
 
 ```bash
-# Uruchom aplikację
-docker-compose up -d
+# Start application
+docker compose up -d
 
-# Zatrzymaj aplikację
-docker-compose down
+# Stop application
+docker compose down
 
-# Restart aplikacji
-docker-compose restart
+# Restart application
+docker compose restart
 
-# Logi wszystkich serwisów
-docker-compose logs -f
+# Logs for all services
+docker compose logs -f
 
-# Logi konkretnego serwisu
-docker-compose logs -f backend
-docker-compose logs -f frontend
-docker-compose logs -f postgres
+# Logs for specific service
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f postgres
 
-# Rebuild po zmianach w kodzie
-docker-compose up -d --build
+# Rebuild after code changes
+docker compose up -d --build
 
-# Dostęp do bazy danych
-docker-compose exec postgres psql -U pathlife -d pathlife
+# Access database
+docker compose exec postgres psql -U pathlife -d pathlife
 
-# Backup bazy danych
-docker-compose exec postgres pg_dump -U pathlife pathlife > backup.sql
+# Database backup
+docker compose exec postgres pg_dump -U pathlife pathlife > backup.sql
 
-# Restore bazy danych
-docker-compose exec -T postgres psql -U pathlife pathlife < backup.sql
+# Database restore
+docker compose exec -T postgres psql -U pathlife pathlife < backup.sql
 
-# Wyczyść WSZYSTKO (UWAGA: kasuje dane!)
-docker-compose down -v
+# Clean EVERYTHING (WARNING: deletes data!)
+docker compose down -v
 ```
 
-## 📥 Pliki GPX
+## 📥 GPX Files
 
-Aplikacja automatycznie zapisuje pliki GPX:
+The application automatically saves GPX files:
 
 ### Strava
 ```
@@ -384,12 +385,12 @@ data/gpx/strava/
 ### Traccar
 ```
 data/gpx/traccar/
-├── traccar-2025-11-18.gpx  # Wszystkie punkty z dnia
+├── traccar-2025-11-18.gpx  # All points from the day
 ├── traccar-2025-11-19.gpx
 └── ...
 ```
 
-**Format:** GPX 1.1 z:
+**Format:** GPX 1.1 with:
 - GPS coordinates (lat/lon)
 - Timestamps
 - Elevation data
@@ -398,75 +399,74 @@ data/gpx/traccar/
 
 ## 🐛 Troubleshooting
 
-### Problem: Backend nie startuje
+### Problem: Backend won't start
 
-**Sprawdź logi:**
+**Check logs:**
 ```bash
-docker-compose logs -f backend
+docker compose logs -f backend
 ```
 
-**Typowe problemy:**
-- Brakujące zmienne środowiskowe w `.env`
-- PostgreSQL nie zdążył wystartować
-- Port 3000 zajęty
+**Common issues:**
+- Missing environment variables in `.env`
+- PostgreSQL hasn't started yet
+- Port 3030 already in use
 
-**Rozwiązanie:**
+**Solution:**
 ```bash
-docker-compose down
-docker-compose up -d --build
+docker compose down
+docker compose up -d --build
 ```
 
-### Problem: Nie mogę się zalogować
+### Problem: Can't login
 
-**Sprawdź czy backend działa:**
+**Check if backend is running:**
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3030/health
 ```
 
-**Reset hasła admina:**
+**Check container logs for default password:**
 ```bash
-docker-compose exec postgres psql -U pathlife -d pathlife -c \
-  "UPDATE \"User\" SET password = '\$2a\$10\$...' WHERE username = 'admin';"
+docker compose logs backend | grep "Password:"
 ```
 
-### Problem: Brak zdjęć z Immich
+### Problem: No photos from Immich
 
-**Sprawdź:**
-1. Czy Immich API key jest poprawny?
-2. Czy URL Immich jest dostępny z Dockera?
-3. Logi: `docker-compose logs -f backend | grep -i immich`
+**Check:**
+1. Is Immich API key correct?
+2. Is Immich URL accessible from Docker?
+3. Logs: `docker compose logs -f backend | grep -i immich`
 
 ### Problem: Strava rate limit exceeded
 
-**Sprawdź harmonogram:**
+**Check schedule:**
 ```bash
 echo $SYNC_SCHEDULE
 ```
 
-**Zmień na rzadszą synchronizację:**
+**Change to less frequent sync:**
 ```env
-SYNC_SCHEDULE="0 */12 * * *"  # Co 12 godzin
+SYNC_SCHEDULE="0 */12 * * *"  # Every 12 hours
 ```
 
-### Problem: Baza danych pusta
+### Problem: Empty database
 
-**Reset i resync:**
+**Reset and resync:**
 ```bash
-# UWAGA: To skasuje wszystkie dane!
-docker-compose down -v
-docker-compose up -d
-# Poczekaj 30s na inicjalizację
-# Zaloguj się i kliknij "Synchronizuj dane"
+# WARNING: This will delete all data!
+docker compose down -v
+docker compose up -d
+# Wait 30s for initialization
+# Login and click "Sync" in Settings
 ```
 
 ## 🤝 Contributing
 
-Pull requesty są mile widziane! Dla większych zmian, najpierw otwórz issue.
+Pull requests are welcome! For major changes, please open an issue first.
 
-### Development setup
+### Development Setup
 
 ```bash
-# Sklonuj repo
+# Clone repo
 git clone https://github.com/poncheck/pathlife.git
 cd pathlife
 
@@ -475,23 +475,23 @@ cd apps/backend
 npm install
 npm run dev
 
-# Frontend (w nowym terminalu)
+# Frontend (in new terminal)
 cd apps/frontend
 npm install
 npm run dev
 ```
 
-## 📝 Licencja
+## 📝 License
 
 MIT © poncheck
 
 ---
 
-**Uwaga:** Ten projekt wymaga działających instancji Immich, Strava i/lub Traccar. Nie zawiera tych serwisów - musisz je skonfigurować osobno.
+**Note:** This project requires working Immich, Strava and/or Traccar instances. It does not include these services - you must configure them separately.
 
-## 🙏 Podziękowania
+## 🙏 Acknowledgments
 
-- [Immich](https://immich.app/) - zarządzanie zdjęciami
-- [Strava](https://www.strava.com/) - aktywności sportowe
-- [Traccar](https://www.traccar.org/) - śledzenie GPS
-- [Leaflet](https://leafletjs.com/) - mapy interaktywne
+- [Immich](https://immich.app/) - Photo management
+- [Strava](https://www.strava.com/) - Sports activities
+- [Traccar](https://www.traccar.org/) - GPS tracking
+- [Leaflet](https://leafletjs.com/) - Interactive maps

@@ -69,14 +69,19 @@ export class ImmichService {
   }
 
   async fetchAssetThumbnail(assetId: string): Promise<Buffer> {
-    const response = await this.client.get(`/api/asset/thumbnail/${assetId}`, {
+    // Updated endpoint for Immich v1.x+
+    const response = await this.client.get(`/api/assets/${assetId}/thumbnail`, {
       responseType: 'arraybuffer',
+      params: {
+        size: 'preview', // or 'thumbnail' for smaller size
+      },
     });
     return Buffer.from(response.data);
   }
 
   async fetchAsset(assetId: string): Promise<Buffer> {
-    const response = await this.client.get(`/api/asset/file/${assetId}`, {
+    // Updated endpoint for Immich v1.x+
+    const response = await this.client.get(`/api/assets/${assetId}/original`, {
       responseType: 'arraybuffer',
     });
     return Buffer.from(response.data);

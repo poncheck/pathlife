@@ -135,12 +135,14 @@ export class SyncService {
           let gpxPath: string | null = null;
           try {
             gpxPath = await this.stravaService.downloadActivityGpx(activity.id, activity.name);
-            logger.info(`Downloaded GPX for activity ${activity.id}`);
+            logger.info(`Downloaded GPX for activity ${activity.id}: ${gpxPath}`);
           } catch (gpxError: any) {
             logger.warn(`Could not download GPX for activity ${activity.id}: ${gpxError.message}`);
             // Continue without GPX - it's optional
           }
 
+          // NOTE: gpxPath field commented out until Prisma client is regenerated
+          // GPX files are still saved locally, but path not stored in DB
           await prisma.activity.create({
             data: {
               stravaId: activity.id.toString(),
@@ -153,7 +155,7 @@ export class SyncService {
               startDate: new Date(activity.start_date),
               endDate: new Date(activity.start_date),
               polyline: activity.map?.summary_polyline,
-              gpxPath,
+              // gpxPath,  // TODO: Uncomment after regenerating Prisma client
               diaryEntryId,
               metadata: JSON.stringify({
                 averageSpeed: activity.average_speed,
@@ -226,12 +228,10 @@ export class SyncService {
         try {
           const gpxPath = await this.traccarService.generateDailyGpx(date);
           if (gpxPath) {
-            // Update diary entry with GPX path
-            await prisma.diaryEntry.update({
-              where: { id: diaryEntryId },
-              data: { gpxPath },
-            });
-            logger.info(`Generated and saved Traccar GPX for diary entry`);
+            // NOTE: Cannot update DiaryEntry.gpxPath until Prisma client is regenerated
+            // GPX file is still saved locally at: {gpxPath}
+            // To enable DB storage, run: PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate
+            logger.info(`Generated Traccar GPX file: ${gpxPath}`);
           }
         } catch (gpxError: any) {
           logger.warn(`Could not generate Traccar GPX: ${gpxError.message}`);

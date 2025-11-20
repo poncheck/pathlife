@@ -8,5 +8,7 @@ build
 coverage
 *.sqlite
 *.sqlite-journal
+*.db
+*.db-journal
 .vscode
 .idea

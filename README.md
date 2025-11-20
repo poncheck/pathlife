@@ -79,10 +79,26 @@ cp .env.example .env
 
 ### 5. Inicjalizacja bazy danych
 
+**Metoda 1: Używając skryptu Python (zalecane)**
+
 ```bash
 cd apps/backend
-npm run db:generate
-npm run db:push
+python3 scripts/init-db.py
+```
+
+**Metoda 2: Używając Prisma (jeśli zainstalowane)**
+
+```bash
+cd apps/backend
+npx prisma generate
+npx prisma db push
+```
+
+**Metoda 3: Ręcznie używając SQLite**
+
+```bash
+cd apps/backend
+sqlite3 pathlife.db < init-db.sql
 ```
 
 ## 🔑 Konfiguracja integracji

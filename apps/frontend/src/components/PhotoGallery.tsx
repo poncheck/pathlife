@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Photo } from '../types';
 import { Check } from 'lucide-react';
 
@@ -10,6 +10,18 @@ interface PhotoGalleryProps {
 
 export function PhotoGallery({ photos, onToggleSelect, editable = false }: PhotoGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Close modal on ESC key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedImage) {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage]);
 
   if (photos.length === 0) {
     return (
@@ -94,7 +106,7 @@ export function PhotoGallery({ photos, onToggleSelect, editable = false }: Photo
             ×
           </button>
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
-            Kliknij poza zdjęciem lub naciśnij × aby zamknąć
+            Kliknij poza zdjęciem, naciśnij ESC lub × aby zamknąć
           </div>
         </div>
       )}

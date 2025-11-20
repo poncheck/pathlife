@@ -41,6 +41,11 @@ services:
       PORT: 3000
       NODE_ENV: production
 
+      # Security (CHANGE THESE IN PRODUCTION!)
+      JWT_SECRET: ${JWT_SECRET:-change-me-use-long-random-string-min-32-chars}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-change-me-use-32-character-string}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+
       # Immich Configuration (set your values)
       IMMICH_URL: ${IMMICH_URL}
       IMMICH_API_KEY: ${IMMICH_API_KEY}

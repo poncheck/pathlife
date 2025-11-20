@@ -5,6 +5,10 @@ import { PrismaClient } from '@prisma/client';
 import diaryRoutes from './routes/diary.routes';
 import syncRoutes from './routes/sync.routes';
 import immichRoutes from './routes/immich.routes';
+import authRoutes from './routes/auth.routes';
+import settingsRoutes from './routes/settings.routes';
+import { authMiddleware } from './middleware/auth.middleware';
+import { authService } from './services/auth.service';
 import { initScheduler } from './scheduler';
 import logger from './utils/logger';
 
@@ -26,7 +30,7 @@ app.use((req: Request, res: Response, next) => {
   next();
 });
 
-// Health check endpoint
+// Health check endpoint (public)
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'ok',
@@ -35,10 +39,14 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// API routes
-app.use('/api/diary', diaryRoutes);
-app.use('/api/immich', immichRoutes);
-app.use('/api', syncRoutes);
+// Public API routes (no auth required)
+app.use('/api/auth', authRoutes);
+
+// Protected API routes (auth required)
+app.use('/api/diary', authMiddleware, diaryRoutes);
+app.use('/api/immich', authMiddleware, immichRoutes);
+app.use('/api/sync', authMiddleware, syncRoutes);
+app.use('/api/settings', settingsRoutes); // Has its own auth middleware
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -58,12 +66,16 @@ async function start() {
     await prisma.$connect();
     logger.info('Database connected successfully');
 
+    // Initialize default admin user if needed
+    await authService.initializeDefaultUser();
+
     // Initialize scheduler
     initScheduler();
 
     app.listen(port, () => {
       logger.info(`PathLife backend server is running on port ${port}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info('🔒 Authentication enabled - /api routes protected');
     });
   } catch (error: any) {
     logger.error('Failed to start server:', error);

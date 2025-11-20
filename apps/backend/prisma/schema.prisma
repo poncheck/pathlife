@@ -92,3 +92,27 @@ model SyncLog {
 
   @@index([source, timestamp])
 }
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String   // Bcrypt hashed password
+  email     String?
+  role      String   @default("admin") // 'admin', 'user'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([username])
+}
+
+model Settings {
+  id    String @id @default(uuid())
+  key   String @unique // e.g., 'immich_url', 'strava_client_id'
+  value String // Encrypted sensitive data
+  type  String // 'immich', 'strava', 'traccar', 'system'
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+}

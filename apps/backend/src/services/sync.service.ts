@@ -110,7 +110,7 @@ export class SyncService {
           message: error.message,
         },
       });
-      logger.error('Error syncing photos:', error.message);
+      logger.error('Error syncing photos:', error);
     }
   }
 
@@ -166,7 +166,7 @@ export class SyncService {
           message: error.message,
         },
       });
-      logger.error('Error syncing activities:', error.message);
+      logger.error('Error syncing activities:', error);
     }
   }
 
@@ -222,7 +222,7 @@ export class SyncService {
           message: error.message,
         },
       });
-      logger.error('Error syncing locations:', error.message);
+      logger.error('Error syncing locations:', error);
     }
   }
 

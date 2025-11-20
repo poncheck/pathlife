@@ -15,7 +15,7 @@ router.get('/thumbnail/:assetId', async (req: Request, res: Response) => {
     res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
     res.send(imageBuffer);
   } catch (error: any) {
-    logger.error(`Error fetching thumbnail ${req.params.assetId}:`, error.message);
+    logger.error(`Error fetching thumbnail ${req.params.assetId}:`, error);
     res.status(404).send('Image not found');
   }
 });
@@ -30,7 +30,7 @@ router.get('/asset/:assetId', async (req: Request, res: Response) => {
     res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
     res.send(imageBuffer);
   } catch (error: any) {
-    logger.error(`Error fetching asset ${req.params.assetId}:`, error.message);
+    logger.error(`Error fetching asset ${req.params.assetId}:`, error);
     res.status(404).send('Image not found');
   }
 });

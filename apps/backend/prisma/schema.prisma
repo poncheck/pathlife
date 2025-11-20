@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model DiaryEntry {
+  id          String   @id @default(uuid())
+  date        DateTime @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  photos     Photo[]
+  activities Activity[]
+  locations  Location[]
+}
+
+model Photo {
+  id           String     @id @default(uuid())
+  immichId     String     @unique
+  immichUrl    String
+  thumbnailUrl String?
+  takenAt      DateTime
+  selected     Boolean    @default(false)
+  metadata     String?    // JSON string for additional metadata
+
+  diaryEntryId String
+  diaryEntry   DiaryEntry @relation(fields: [diaryEntryId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime   @default(now())
+
+  @@index([diaryEntryId])
+  @@index([takenAt])
+}
+
+model Activity {
+  id             String     @id @default(uuid())
+  stravaId       String     @unique
+  name           String
+  type           String
+  distance       Float?
+  movingTime     Int?
+  elapsedTime    Int?
+  totalElevation Float?
+  startDate      DateTime
+  endDate        DateTime?
+  polyline       String?
+  metadata       String?    // JSON string for additional metadata
+
+  diaryEntryId   String
+  diaryEntry     DiaryEntry @relation(fields: [diaryEntryId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime   @default(now())
+
+  @@index([diaryEntryId])
+  @@index([startDate])
+}
+
+model Location {
+  id           String     @id @default(uuid())
+  traccarId    String?
+  latitude     Float
+  longitude    Float
+  address      String?
+  timestamp    DateTime
+  speed        Float?
+  altitude     Float?
+  metadata     String?    // JSON string for additional metadata
+
+  diaryEntryId String
+  diaryEntry   DiaryEntry @relation(fields: [diaryEntryId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime   @default(now())
+
+  @@index([diaryEntryId])
+  @@index([timestamp])
+}
+
+model SyncLog {
+  id        String   @id @default(uuid())
+  source    String   // 'immich', 'strava', 'traccar'
+  status    String   // 'success', 'error'
+  message   String?
+  itemCount Int      @default(0)
+  timestamp DateTime @default(now())
+
+  @@index([source, timestamp])
+}

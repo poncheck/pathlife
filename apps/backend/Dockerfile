@@ -39,7 +39,6 @@ RUN npm install --workspace=apps/backend --omit=dev
 # Copy built application and Prisma files
 COPY --from=base /app/apps/backend/dist ./apps/backend/dist
 COPY --from=base /app/apps/backend/prisma ./apps/backend/prisma
-COPY --from=base /app/apps/backend/node_modules/.prisma ./apps/backend/node_modules/.prisma
 
 # Create data directory for GPX files
 RUN mkdir -p /app/apps/backend/data/gpx/strava /app/apps/backend/data/gpx/traccar
@@ -54,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Run migrations and start server
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && npm start"]

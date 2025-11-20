@@ -61,7 +61,7 @@ export function Settings() {
       });
     } catch (error: any) {
       console.error('Error loading settings:', error);
-      setMessage({ type: 'error', text: 'Nie udało się załadować ustawień' });
+      setMessage({ type: 'error', text: 'Failed to load settings' });
     } finally {
       setLoading(false);
     }
@@ -88,7 +88,7 @@ export function Settings() {
 
       await axios.post('/api/settings/bulk', { settings: settingsToUpdate });
 
-      setMessage({ type: 'success', text: '✓ Ustawienia zostały zapisane' });
+      setMessage({ type: 'success', text: '✓ Settings have been saved' });
 
       // Reload after 1 second
       setTimeout(() => {
@@ -96,7 +96,7 @@ export function Settings() {
       }, 1000);
     } catch (error: any) {
       console.error('Error saving settings:', error);
-      setMessage({ type: 'error', text: 'Nie udało się zapisać ustawień' });
+      setMessage({ type: 'error', text: 'Failed to save settings' });
     } finally {
       setSaving(false);
     }
@@ -119,21 +119,21 @@ export function Settings() {
         result = await syncApi.sync(startDate, endDate);
         setMessage({
           type: 'success',
-          text: `✓ Rozpoczęto synchronizację historyczną od ${startYear} roku. To może zająć wiele godzin. Dane będą się pojawiać stopniowo.`,
+          text: `✓ Started historical sync from ${startYear}. This may take many hours. Data will appear gradually.`,
         });
       } else if (days) {
         // Recent sync
         result = await syncApi.syncLastDays(days);
         setMessage({
           type: 'success',
-          text: `✓ Rozpoczęto synchronizację ostatnich ${days} dni. Sprawdź kalendarz za kilka minut.`,
+          text: `✓ Started sync of last ${days} days. Check calendar in a few minutes.`,
         });
       } else {
         // Default 30 days
         result = await syncApi.syncAll();
         setMessage({
           type: 'success',
-          text: '✓ Rozpoczęto synchronizację ostatnich 30 dni.',
+          text: '✓ Started sync of last 30 days.',
         });
       }
 
@@ -142,7 +142,7 @@ export function Settings() {
       console.error('Error starting sync:', error);
       setMessage({
         type: 'error',
-        text: `Błąd synchronizacji: ${error.response?.data?.error || error.message}`,
+        text: `Sync error: ${error.response?.data?.error || error.message}`,
       });
     } finally {
       setSyncing(false);
@@ -152,7 +152,7 @@ export function Settings() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-gray-600">Ładowanie ustawień...</div>
+        <div className="text-xl text-gray-600">Loading settings...</div>
       </div>
     );
   }
@@ -167,11 +167,11 @@ export function Settings() {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft size={20} />
-            Powrót
+            Back
           </button>
-          <h1 className="text-3xl font-bold">Ustawienia API</h1>
+          <h1 className="text-3xl font-bold">API Settings</h1>
           <p className="text-gray-600 mt-2">
-            Konfiguracja połączeń z Immich, Strava i Traccar
+            Configuration of connections to Immich, Strava and Traccar
           </p>
         </div>
       </div>
@@ -344,7 +344,7 @@ export function Settings() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hasło
+                Password
               </label>
               <div className="relative">
                 <input
@@ -372,11 +372,11 @@ export function Settings() {
             <span className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
               <RefreshCw size={20} />
             </span>
-            Synchronizacja danych
+            Data synchronization
           </h2>
 
           <p className="text-gray-600 mb-6">
-            Synchronizuj zdjęcia, aktywności i lokalizacje z podłączonych źródeł.
+            Synchronize photos, activities and locations from connected sources.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -387,7 +387,7 @@ export function Settings() {
               className="px-4 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:bg-gray-200 disabled:text-gray-500 flex items-center justify-center gap-2 font-medium transition-colors"
             >
               <RefreshCw size={18} />
-              Ostatnie 30 dni
+              Last 30 days
             </button>
 
             <button
@@ -396,7 +396,7 @@ export function Settings() {
               className="px-4 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:bg-gray-200 disabled:text-gray-500 flex items-center justify-center gap-2 font-medium transition-colors"
             >
               <RefreshCw size={18} />
-              Ostatnie 90 dni
+              Last 90 days
             </button>
 
             <button
@@ -405,13 +405,13 @@ export function Settings() {
               className="px-4 py-3 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 disabled:bg-gray-200 disabled:text-gray-500 flex items-center justify-center gap-2 font-medium transition-colors"
             >
               <RefreshCw size={18} />
-              Ostatni rok
+              Last year
             </button>
 
             {/* Historical sync from 1986 */}
             <button
               onClick={() => {
-                if (window.confirm('Synchronizacja od 1986 roku może zająć wiele godzin i obciążyć API. Kontynuować?')) {
+                if (window.confirm('Sync from 1986 may take many hours and load the API. Continue?')) {
                   handleSync(undefined, 1986);
                 }
               }}
@@ -419,20 +419,20 @@ export function Settings() {
               className="px-4 py-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:bg-gray-200 disabled:text-gray-500 flex items-center justify-center gap-2 font-medium transition-colors"
             >
               <RefreshCw size={18} />
-              Od 1986 roku 🚀
+              From 1986 🚀
             </button>
           </div>
 
           {syncing && (
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
               <RefreshCw size={20} className="animate-spin text-blue-600" />
-              <span className="text-blue-700">Uruchamianie synchronizacji...</span>
+              <span className="text-blue-700">Starting synchronization...</span>
             </div>
           )}
 
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-            <strong>⚠️ Uwaga:</strong> Synchronizacja historyczna (od 1986) może zająć wiele godzin i przekroczyć
-            limity API Strava (100 żądań/15min, 1000/dzień). Dane będą pojawiać się stopniowo.
+            <strong>⚠️ Warning:</strong> Historical sync (from 1986) may take many hours and exceed
+            Strava API limits (100 requests/15min, 1000/day). Data will appear gradually.
           </div>
         </div>
 
@@ -444,7 +444,7 @@ export function Settings() {
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2 font-medium transition-colors"
           >
             <Save size={20} />
-            {saving ? 'Zapisywanie...' : 'Zapisz ustawienia'}
+            {saving ? 'Saving...' : 'Save settings'}
           </button>
         </div>
       </div>

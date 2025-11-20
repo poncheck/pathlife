@@ -11,7 +11,7 @@ router.get('/entries/:date', async (req: Request, res: Response) => {
   try {
     const date = startOfDay(new Date(req.params.date));
 
-    const entry = await prisma.diaryEntry.findUnique({
+    let entry = await prisma.diaryEntry.findUnique({
       where: { date },
       include: {
         photos: {
@@ -26,8 +26,17 @@ router.get('/entries/:date', async (req: Request, res: Response) => {
       },
     });
 
+    // Create empty entry if it doesn't exist
     if (!entry) {
-      return res.status(404).json({ error: 'Diary entry not found' });
+      logger.info(`Creating empty diary entry for ${date.toISOString()}`);
+      entry = await prisma.diaryEntry.create({
+        data: { date },
+        include: {
+          photos: true,
+          activities: true,
+          locations: true,
+        },
+      });
     }
 
     res.json(entry);

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { diaryApi } from '../api/client';
+import { diaryApi, syncApi } from '../api/client';
 import { DiaryEntry } from '../types';
 import { PhotoGallery } from '../components/PhotoGallery';
 import { ActivityList } from '../components/ActivityList';
 import { LocationMap } from '../components/LocationMap';
 import { formatDate } from '../utils/format';
-import { ChevronLeft, ChevronRight, Save, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, Calendar, RefreshCw } from 'lucide-react';
 
 export function DailyView() {
   const { date } = useParams<{ date: string }>();
@@ -16,6 +16,7 @@ export function DailyView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     loadEntry();
@@ -67,6 +68,25 @@ export function DailyView() {
     navigate(`/day/${currentDate.toISOString().split('T')[0]}`);
   };
 
+  const handleSyncDay = async () => {
+    if (!date) return;
+
+    try {
+      setSyncing(true);
+      setError(null);
+      await syncApi.sync(date, date);
+
+      // Wait a bit for sync to complete
+      setTimeout(async () => {
+        await loadEntry();
+        setSyncing(false);
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message || 'Nie udało się zsynchronizować danych');
+      setSyncing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -104,13 +124,23 @@ export function DailyView() {
 
         <div className="text-center">
           <h1 className="text-3xl font-bold">{formatDate(entry.date)}</h1>
-          <button
-            onClick={() => navigate('/')}
-            className="text-sm text-blue-600 hover:text-blue-800 mt-2 flex items-center gap-1 mx-auto"
-          >
-            <Calendar size={16} />
-            Pokaż kalendarz
-          </button>
+          <div className="flex items-center gap-4 justify-center mt-2">
+            <button
+              onClick={() => navigate('/')}
+              className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            >
+              <Calendar size={16} />
+              Pokaż kalendarz
+            </button>
+            <button
+              onClick={handleSyncDay}
+              disabled={syncing}
+              className="text-sm text-green-600 hover:text-green-800 flex items-center gap-1 disabled:text-gray-400"
+            >
+              <RefreshCw size={16} className={syncing ? 'animate-spin' : ''} />
+              {syncing ? 'Synchronizowanie...' : 'Synchronizuj dane'}
+            </button>
+          </div>
         </div>
 
         <button
@@ -120,6 +150,15 @@ export function DailyView() {
           <ChevronRight size={24} />
         </button>
       </div>
+
+      {/* Info banner when no data */}
+      {entry.photos.length === 0 && entry.activities.length === 0 && entry.locations.length === 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+          <p className="text-yellow-800">
+            Brak danych dla tego dnia. Kliknij "Synchronizuj dane" aby pobrać zdjęcia z Immich, aktywności ze Stravy i lokalizacje z Traccara.
+          </p>
+        </div>
+      )}
 
       {/* Description */}
       <div className="mb-8">

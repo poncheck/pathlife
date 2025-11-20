@@ -1,5 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, format } from 'date-fns';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import logger from '../utils/logger';
 
 export interface StravaActivity {
@@ -97,6 +99,52 @@ export class StravaService {
     } catch (error: any) {
       logger.error(`Error fetching Strava activity ${activityId}:`, error.message);
       throw new Error(`Failed to fetch Strava activity: ${error.message}`);
+    }
+  }
+
+  /**
+   * Download GPX file for an activity and save it locally
+   * @param activityId Strava activity ID
+   * @param activityName Name of the activity for the filename
+   * @returns Path to the saved GPX file
+   */
+  async downloadActivityGpx(activityId: number, activityName: string = ''): Promise<string> {
+    try {
+      await this.ensureAuthenticated();
+
+      logger.info(`Downloading GPX for Strava activity ${activityId}`);
+
+      // Download GPX from Strava
+      const response = await this.client.get(`/activities/${activityId}/export_gpx`, {
+        responseType: 'text',
+      });
+
+      // Create GPX directory if it doesn't exist
+      const gpxDir = path.join(process.cwd(), 'data', 'gpx', 'strava');
+      await fs.mkdir(gpxDir, { recursive: true });
+
+      // Generate filename
+      const safeName = activityName
+        .replace(/[^a-z0-9]/gi, '_')
+        .toLowerCase()
+        .substring(0, 50);
+      const filename = safeName
+        ? `${activityId}-${safeName}.gpx`
+        : `${activityId}.gpx`;
+      const filePath = path.join(gpxDir, filename);
+
+      // Save GPX file
+      await fs.writeFile(filePath, response.data, 'utf-8');
+
+      logger.info(`Saved GPX file: ${filePath}`);
+      return filePath;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        logger.warn(`GPX not available for activity ${activityId} (may not have GPS data)`);
+        throw new Error('GPX not available for this activity');
+      }
+      logger.error(`Error downloading GPX for activity ${activityId}:`, error.message);
+      throw new Error(`Failed to download GPX: ${error.message}`);
     }
   }
 

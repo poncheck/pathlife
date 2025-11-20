@@ -131,6 +131,16 @@ export class SyncService {
         });
 
         if (!existingActivity) {
+          // Try to download GPX file
+          let gpxPath: string | null = null;
+          try {
+            gpxPath = await this.stravaService.downloadActivityGpx(activity.id, activity.name);
+            logger.info(`Downloaded GPX for activity ${activity.id}`);
+          } catch (gpxError: any) {
+            logger.warn(`Could not download GPX for activity ${activity.id}: ${gpxError.message}`);
+            // Continue without GPX - it's optional
+          }
+
           await prisma.activity.create({
             data: {
               stravaId: activity.id.toString(),
@@ -143,6 +153,7 @@ export class SyncService {
               startDate: new Date(activity.start_date),
               endDate: new Date(activity.start_date),
               polyline: activity.map?.summary_polyline,
+              gpxPath,
               diaryEntryId,
               metadata: JSON.stringify({
                 averageSpeed: activity.average_speed,
@@ -207,6 +218,24 @@ export class SyncService {
               }),
             },
           });
+        }
+      }
+
+      // Generate GPX file for the day if we have positions
+      if (positions.length > 0) {
+        try {
+          const gpxPath = await this.traccarService.generateDailyGpx(date);
+          if (gpxPath) {
+            // Update diary entry with GPX path
+            await prisma.diaryEntry.update({
+              where: { id: diaryEntryId },
+              data: { gpxPath },
+            });
+            logger.info(`Generated and saved Traccar GPX for diary entry`);
+          }
+        } catch (gpxError: any) {
+          logger.warn(`Could not generate Traccar GPX: ${gpxError.message}`);
+          // Continue - GPX generation is optional
         }
       }
 

@@ -12,6 +12,7 @@ model DiaryEntry {
   id          String   @id @default(uuid())
   date        DateTime @unique
   description String?
+  gpxPath     String?  // Path to combined GPX file for the day (from Traccar)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -50,6 +51,7 @@ model Activity {
   startDate      DateTime
   endDate        DateTime?
   polyline       String?
+  gpxPath        String?    // Path to local GPX file
   metadata       String?    // JSON string for additional metadata
 
   diaryEntryId   String

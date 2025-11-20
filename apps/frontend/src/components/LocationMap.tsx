@@ -54,7 +54,7 @@ export function LocationMap({ locations }: LocationMapProps) {
         {/* Show markers for significant points */}
         {locations
           .filter((_, index) => index % Math.ceil(locations.length / 10) === 0)
-          .map((location, index) => (
+          .map((location) => (
             <Marker key={location.id} position={[location.latitude, location.longitude]}>
               <Popup>
                 <div className="text-sm">

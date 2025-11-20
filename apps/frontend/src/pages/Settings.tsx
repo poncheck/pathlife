@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Save, Eye, EyeOff, ArrowLeft, Key, Lock } from 'lucide-react';
+import { Save, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 interface SettingsForm {
   immich_url: string;

@@ -1,4 +1,4 @@
-import { format, formatDistance, formatDuration, intervalToDuration } from 'date-fns';
+import { format, formatDistance as formatDistanceFromNow, intervalToDuration } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 export const formatDate = (date: string | Date, formatStr: string = 'dd MMMM yyyy'): string => {
@@ -10,7 +10,7 @@ export const formatTime = (date: string | Date): string => {
 };
 
 export const formatRelative = (date: string | Date): string => {
-  return formatDistance(new Date(date), new Date(), { addSuffix: true, locale: pl });
+  return formatDistanceFromNow(new Date(date), new Date(), { addSuffix: true, locale: pl });
 };
 
 export const formatDurationSeconds = (seconds: number): string => {

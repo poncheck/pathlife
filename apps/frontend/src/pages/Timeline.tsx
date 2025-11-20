@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { diaryApi } from '../api/client';
 import { DiaryEntry } from '../types';
-import { formatDate } from '../utils/format';
 import {
   startOfMonth,
   endOfMonth,

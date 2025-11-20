@@ -5,6 +5,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import logger from '../utils/logger';
 import { GpxGenerator, GpxPoint } from '../utils/gpx-generator';
+import { settingsService } from './settings.service';
 
 export interface TraccarPosition {
   id: number;
@@ -34,17 +35,31 @@ export interface TraccarDevice {
 }
 
 export class TraccarService {
-  private client: AxiosInstance;
+  private client: AxiosInstance | null = null;
 
   constructor() {
-    const email = process.env.TRACCAR_EMAIL || '';
-    const password = process.env.TRACCAR_PASSWORD || '';
+    // Client will be initialized on first use
+  }
 
-    // Use Basic Authentication - more reliable for Traccar API
+  private async ensureConfigured(): Promise<void> {
+    if (this.client) return;
+
+    // Try to get from Settings first
+    const settings = await settingsService.getServiceConfig('traccar');
+
+    const email = settings['traccar_email'] || process.env.TRACCAR_EMAIL || '';
+    const password = settings['traccar_password'] || process.env.TRACCAR_PASSWORD || '';
+    const url = settings['traccar_url'] || process.env.TRACCAR_URL || '';
+
+    if (!url || !email || !password) {
+      throw new Error('Traccar configuration is incomplete. Please configure in Settings.');
+    }
+
+    // Use Basic Authentication
     const auth = Buffer.from(`${email}:${password}`).toString('base64');
 
     this.client = axios.create({
-      baseURL: process.env.TRACCAR_URL || '',
+      baseURL: url,
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -55,11 +70,14 @@ export class TraccarService {
         rejectUnauthorized: false,
       }),
     });
+
+    logger.info('Traccar service configured');
   }
 
   async getDevices(): Promise<TraccarDevice[]> {
+    await this.ensureConfigured();
     try {
-      const response = await this.client.get('/api/devices');
+      const response = await this.client!.get('/api/devices');
       return response.data;
     } catch (error: any) {
       logger.error('Error fetching Traccar devices:', error.message);
@@ -68,6 +86,7 @@ export class TraccarService {
   }
 
   async getPositionsByDate(deviceId: number, date: Date): Promise<TraccarPosition[]> {
+    await this.ensureConfigured();
     try {
       const from = startOfDay(date).toISOString();
       const to = endOfDay(date).toISOString();
@@ -156,7 +175,8 @@ export class TraccarService {
 
   async testConnection(): Promise<boolean> {
     try {
-      const response = await this.client.get('/api/server');
+      await this.ensureConfigured();
+      const response = await this.client!.get('/api/server');
       logger.info('Traccar connection test successful');
       return !!response.data.id;
     } catch (error: any) {
@@ -165,3 +185,4 @@ export class TraccarService {
     }
   }
 }
+

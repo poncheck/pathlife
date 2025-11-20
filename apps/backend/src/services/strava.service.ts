@@ -3,6 +3,7 @@ import { startOfDay, endOfDay, format } from 'date-fns';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import logger from '../utils/logger';
+import { settingsService } from './settings.service';
 
 export interface StravaActivity {
   id: number;
@@ -37,10 +38,21 @@ export class StravaService {
 
   private async refreshAccessToken(): Promise<string> {
     try {
+      // Try to get from Settings first
+      const settings = await settingsService.getServiceConfig('strava');
+
+      const clientId = settings['strava_client_id'] || process.env.STRAVA_CLIENT_ID;
+      const clientSecret = settings['strava_client_secret'] || process.env.STRAVA_CLIENT_SECRET;
+      const refreshToken = settings['strava_refresh_token'] || process.env.STRAVA_REFRESH_TOKEN;
+
+      if (!clientId || !clientSecret || !refreshToken) {
+        throw new Error('Strava configuration is incomplete. Please configure in Settings.');
+      }
+
       const response = await axios.post('https://www.strava.com/oauth/token', {
-        client_id: process.env.STRAVA_CLIENT_ID,
-        client_secret: process.env.STRAVA_CLIENT_SECRET,
-        refresh_token: process.env.STRAVA_REFRESH_TOKEN,
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
         grant_type: 'refresh_token',
       });
 

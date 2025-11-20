@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { startOfDay, endOfDay } from 'date-fns';
 import logger from '../utils/logger';
+import { settingsService } from './settings.service';
 
 export interface ImmichAsset {
   id: string;
@@ -23,21 +24,40 @@ export interface ImmichAsset {
 }
 
 export class ImmichService {
-  private client: AxiosInstance;
-  private baseUrl: string;
+  private client: AxiosInstance | null = null;
+  private baseUrl: string = '';
 
   constructor() {
-    this.baseUrl = process.env.IMMICH_URL || '';
+    // Client will be initialized on first use
+  }
+
+  private async ensureConfigured(): Promise<void> {
+    if (this.client) return;
+
+    // Try to get from Settings first
+    const settings = await settingsService.getServiceConfig('immich');
+
+    const url = settings['immich_url'] || process.env.IMMICH_URL || '';
+    const apiKey = settings['immich_api_key'] || process.env.IMMICH_API_KEY || '';
+
+    if (!url || !apiKey) {
+      throw new Error('Immich configuration is incomplete. Please configure in Settings.');
+    }
+
+    this.baseUrl = url;
     this.client = axios.create({
       baseURL: this.baseUrl,
       headers: {
-        'x-api-key': process.env.IMMICH_API_KEY || '',
+        'x-api-key': apiKey,
         'Accept': 'application/json',
       },
     });
+
+    logger.info('Immich service configured');
   }
 
   async getAssetsByDate(date: Date): Promise<ImmichAsset[]> {
+    await this.ensureConfigured();
     try {
       const start = startOfDay(date).toISOString();
       const end = endOfDay(date).toISOString();
@@ -69,8 +89,9 @@ export class ImmichService {
   }
 
   async fetchAssetThumbnail(assetId: string): Promise<Buffer> {
+    await this.ensureConfigured();
     // Updated endpoint for Immich v1.x+
-    const response = await this.client.get(`/api/assets/${assetId}/thumbnail`, {
+    const response = await this.client!.get(`/api/assets/${assetId}/thumbnail`, {
       responseType: 'arraybuffer',
       params: {
         size: 'preview', // or 'thumbnail' for smaller size
@@ -80,8 +101,9 @@ export class ImmichService {
   }
 
   async fetchAsset(assetId: string): Promise<Buffer> {
+    await this.ensureConfigured();
     // Updated endpoint for Immich v1.x+
-    const response = await this.client.get(`/api/assets/${assetId}/original`, {
+    const response = await this.client!.get(`/api/assets/${assetId}/original`, {
       responseType: 'arraybuffer',
     });
     return Buffer.from(response.data);
@@ -89,7 +111,8 @@ export class ImmichService {
 
   async testConnection(): Promise<boolean> {
     try {
-      const response = await this.client.get('/api/server-info/ping');
+      await this.ensureConfigured();
+      const response = await this.client!.get('/api/server-info/ping');
       logger.info('Immich connection test successful');
       return response.data.res === 'pong';
     } catch (error: any) {

@@ -65,7 +65,7 @@ export class ImmichService {
       logger.info(`Fetching Immich assets for date: ${date.toISOString()}`);
 
       // Search for assets within the date range
-      const response = await this.client.post('/api/search/metadata', {
+      const response = await this.client!.post('/api/search/metadata', {
         takenAfter: start,
         takenBefore: end,
       });

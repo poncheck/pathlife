@@ -93,7 +93,7 @@ export class TraccarService {
 
       logger.info(`Fetching Traccar positions for device ${deviceId} on ${date.toISOString()}`);
 
-      const response = await this.client.get('/api/positions', {
+      const response = await this.client!.get('/api/positions', {
         params: {
           deviceId,
           from,

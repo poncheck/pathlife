@@ -11,6 +11,20 @@ const api = axios.create({
   },
 });
 
+// Add JWT token to all requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const diaryApi = {
   // Get diary entry for a specific date
   getEntry: async (date: string): Promise<DiaryEntry> => {

@@ -44,9 +44,10 @@ export class StravaService {
         grant_type: 'refresh_token',
       });
 
-      this.accessToken = response.data.access_token;
+      const accessToken = response.data.access_token;
+      this.accessToken = accessToken;
       logger.info('Strava access token refreshed successfully');
-      return this.accessToken;
+      return accessToken;
     } catch (error: any) {
       logger.error('Error refreshing Strava token:', error.message);
       throw new Error(`Failed to refresh Strava token: ${error.message}`);

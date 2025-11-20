@@ -100,9 +100,15 @@ export const syncApi = {
     return response.data;
   },
 
+  // Sync all sources (last 30 days)
+  syncAll: async () => {
+    const response = await api.post('/api/sync/all');
+    return response.data;
+  },
+
   // Test connections
   testConnections: async () => {
-    const response = await api.get('/api/test-connections');
+    const response = await api.get('/api/sync/test-connections');
     return response.data;
   },
 };

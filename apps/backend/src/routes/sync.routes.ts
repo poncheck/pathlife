@@ -6,7 +6,7 @@ import logger from '../utils/logger';
 const router = Router();
 
 // Manually trigger sync for a date range
-router.post('/sync', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.body;
 
@@ -36,7 +36,7 @@ router.post('/sync', async (req: Request, res: Response) => {
 });
 
 // Sync today
-router.post('/sync/today', async (req: Request, res: Response) => {
+router.post('/today', async (req: Request, res: Response) => {
   try {
     const today = new Date();
 
@@ -57,7 +57,7 @@ router.post('/sync/today', async (req: Request, res: Response) => {
 });
 
 // Sync last N days
-router.post('/sync/last-days/:days', async (req: Request, res: Response) => {
+router.post('/last-days/:days', async (req: Request, res: Response) => {
   try {
     const days = parseInt(req.params.days);
     const endDate = new Date();
@@ -71,6 +71,29 @@ router.post('/sync/last-days/:days', async (req: Request, res: Response) => {
 
     res.json({
       message: `Sync started for last ${days} days`,
+      startDate,
+      endDate,
+    });
+  } catch (error: any) {
+    logger.error('Error starting sync:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Sync all - last 30 days
+router.post('/all', async (req: Request, res: Response) => {
+  try {
+    const endDate = new Date();
+    const startDate = subDays(endDate, 30);
+
+    logger.info('Manual sync triggered for all sources (last 30 days)');
+
+    syncService.syncDateRange(startDate, endDate).catch(error => {
+      logger.error('Background sync error:', error);
+    });
+
+    res.json({
+      message: 'Sync started for all sources (last 30 days)',
       startDate,
       endDate,
     });

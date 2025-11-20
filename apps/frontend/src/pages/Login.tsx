@@ -20,7 +20,7 @@ export function Login() {
       await login(username, password);
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Nieprawidłowe dane logowania');
+      setError(err.message || 'Invalid login credentials');
     } finally {
       setLoading(false);
     }
@@ -32,7 +32,7 @@ export function Login() {
         {/* Logo/Title */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">PathLife</h1>
-          <p className="text-gray-600">Zaloguj się do swojego pamiętnika</p>
+          <p className="text-gray-600">Log in to your diary</p>
         </div>
 
         {/* Login Card */}
@@ -41,7 +41,7 @@ export function Login() {
             {/* Username Field */}
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Nazwa użytkownika
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -63,7 +63,7 @@ export function Login() {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Hasło
+                Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -94,21 +94,21 @@ export function Login() {
               disabled={loading}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'Logowanie...' : 'Zaloguj się'}
+              {loading ? 'Logging in...' : 'Log in'}
             </button>
           </form>
 
           {/* Default Credentials Info */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm">
-            <p className="font-medium text-blue-900 mb-1">Domyślne dane:</p>
+            <p className="font-medium text-blue-900 mb-1">Default credentials:</p>
             <p className="text-blue-700">
-              Użytkownik: <code className="bg-blue-100 px-2 py-0.5 rounded">admin</code>
+              Username: <code className="bg-blue-100 px-2 py-0.5 rounded">admin</code>
             </p>
             <p className="text-blue-700">
-              Hasło: <code className="bg-blue-100 px-2 py-0.5 rounded">admin123</code>
+              Password: <code className="bg-blue-100 px-2 py-0.5 rounded">admin123</code>
             </p>
             <p className="text-blue-600 text-xs mt-2">
-              ⚠️ Zmień hasło po pierwszym logowaniu!
+              ⚠️ Change password after first login!
             </p>
           </div>
         </div>

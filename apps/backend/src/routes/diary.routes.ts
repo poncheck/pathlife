@@ -217,9 +217,9 @@ router.post('/locations', async (req: Request, res: Response) => {
           altitude: altitude || null,
           address: address || null,
           diaryEntryId: entry.id,
-          metadata: {
+          metadata: JSON.stringify({
             source: 'ios',
-          },
+          }),
         },
       });
 
@@ -265,14 +265,15 @@ router.post('/photos', async (req: Request, res: Response) => {
     const newPhoto = await prisma.photo.create({
       data: {
         immichId: `ios-${Date.now()}`, // Generate unique ID for iOS photos
+        immichUrl: '', // Empty for iOS photos (stored locally on device)
         takenAt: new Date(takenAt),
         selected: true,
         diaryEntryId: entry.id,
-        metadata: {
+        metadata: JSON.stringify({
           source: 'ios',
           latitude,
           longitude,
-        },
+        }),
       },
     });
 

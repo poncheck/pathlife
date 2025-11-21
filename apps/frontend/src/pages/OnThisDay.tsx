@@ -24,22 +24,8 @@ export function OnThisDay() {
 
       const today = new Date().toISOString();
       const data = await diaryApi.getOnThisDay(today);
-      console.log('OnThisDay API response:', data);
-      console.log('Number of entries:', data?.length);
-      if (data && data.length > 0) {
-        data.forEach((entry: DiaryEntry, index: number) => {
-          console.log(`Entry ${index}:`, {
-            date: entry.date,
-            hasDescription: !!entry.description,
-            photosCount: entry.photos?.length || 0,
-            activitiesCount: entry.activities?.length || 0,
-            locationsCount: entry.locations?.length || 0,
-          });
-        });
-      }
       setEntries(data);
     } catch (err: any) {
-      console.error('OnThisDay error:', err);
       setError(err.message || 'Failed to load entries');
     } finally {
       setLoading(false);

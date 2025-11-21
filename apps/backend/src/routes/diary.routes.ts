@@ -111,7 +111,7 @@ router.get('/on-this-day/:date', async (req: Request, res: Response) => {
     });
 
     // Filter entries that match the same month and day
-    const onThisDayEntries = entries.filter(entry => {
+    const onThisDayEntries = entries.filter((entry: any) => {
       const entryDayMonth = format(entry.date, 'MM-dd');
       return entryDayMonth === dayMonth;
     });

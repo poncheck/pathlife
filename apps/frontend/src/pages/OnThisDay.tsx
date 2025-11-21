@@ -40,11 +40,12 @@ export function OnThisDay() {
 
   // Check if entry has any content worth displaying
   const hasContent = (entry: DiaryEntry): boolean => {
+    if (!entry) return false;
     return !!(
       entry.description ||
-      entry.photos.length > 0 ||
-      entry.activities.length > 0 ||
-      entry.locations.length > 0
+      (entry.photos && entry.photos.length > 0) ||
+      (entry.activities && entry.activities.length > 0) ||
+      (entry.locations && entry.locations.length > 0)
     );
   };
 
@@ -90,7 +91,7 @@ export function OnThisDay() {
         </div>
       )}
 
-      {entries.filter(hasContent).length === 0 ? (
+      {!entries || entries.filter(hasContent).length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           No entries from this day in previous years
         </div>
@@ -99,7 +100,7 @@ export function OnThisDay() {
           {entries.filter(hasContent).map((entry) => {
             const yearsAgo = getYearsAgo(entry.date);
             const entryDate = new Date(entry.date).toISOString().split('T')[0];
-            const backgroundPhoto = entry.photos.length > 0 ? entry.photos[0] : null;
+            const backgroundPhoto = entry.photos && entry.photos.length > 0 ? entry.photos[0] : null;
 
             return (
               <div
@@ -146,7 +147,7 @@ export function OnThisDay() {
                     </div>
                   )}
 
-                  {entry.photos.length > 0 && (
+                  {entry.photos && entry.photos.length > 0 && (
                     <div className="mb-6" onClick={(e) => e.stopPropagation()}>
                       <h3 className="text-lg font-semibold mb-3">Photos</h3>
                       <PhotoGallery
@@ -157,7 +158,7 @@ export function OnThisDay() {
                     </div>
                   )}
 
-                  {entry.activities.length > 0 && (
+                  {entry.activities && entry.activities.length > 0 && (
                     <div onClick={(e) => e.stopPropagation()}>
                       <h3 className="text-lg font-semibold mb-3">Activities</h3>
                       <ActivityList activities={entry.activities} />

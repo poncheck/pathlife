@@ -17,7 +17,7 @@ import {
   isValid
 } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 export function Timeline() {
   const navigate = useNavigate();
@@ -100,11 +100,40 @@ export function Timeline() {
     }
   };
 
+  const handleYearChange = (year: number) => {
+    const newDate = new Date(currentMonth);
+    newDate.setFullYear(year);
+    setCurrentMonth(newDate);
+  };
+
+  // Generate array of years from earliest possible year to current year
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const startYear = 1980; // Can adjust based on your oldest data
+    const years = [];
+    for (let year = currentYear; year >= startYear; year--) {
+      years.push(year);
+    }
+    return years;
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Your Diary</h1>
         <div className="flex items-center gap-3">
+          <select
+            value={currentMonth.getFullYear()}
+            onChange={(e) => handleYearChange(parseInt(e.target.value))}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:border-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors bg-white"
+            title="Select year"
+          >
+            {generateYearOptions().map(year => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
           <input
             type="date"
             onChange={(e) => handleDateJump(e.target.value)}
@@ -128,25 +157,52 @@ export function Timeline() {
         </div>
       )}
 
-      {/* Month selector */}
+      {/* Month and Year selector */}
       <div className="flex items-center justify-center gap-4 mb-8">
+        {/* Previous year */}
+        <button
+          onClick={() => setCurrentMonth(subMonths(currentMonth, 12))}
+          className="p-3 bg-white rounded-lg hover:bg-gray-100 shadow-sm transition-colors"
+          aria-label="Previous year"
+          title="Previous year"
+        >
+          <ChevronsLeft size={24} />
+        </button>
+
+        {/* Previous month */}
         <button
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
           className="p-3 bg-white rounded-lg hover:bg-gray-100 shadow-sm transition-colors"
           aria-label="Previous month"
+          title="Previous month"
         >
           <ChevronLeft size={24} />
         </button>
+
         <h2 className="text-2xl font-semibold min-w-[250px] text-center">
           {format(currentMonth, 'LLLL yyyy', { locale: enUS })}
         </h2>
+
+        {/* Next month */}
         <button
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
           className="p-3 bg-white rounded-lg hover:bg-gray-100 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={currentMonth >= new Date()}
           aria-label="Next month"
+          title="Next month"
         >
           <ChevronRight size={24} />
+        </button>
+
+        {/* Next year */}
+        <button
+          onClick={() => setCurrentMonth(addMonths(currentMonth, 12))}
+          className="p-3 bg-white rounded-lg hover:bg-gray-100 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={currentMonth >= new Date()}
+          aria-label="Next year"
+          title="Next year"
+        >
+          <ChevronsRight size={24} />
         </button>
       </div>
 

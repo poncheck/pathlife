@@ -50,6 +50,15 @@
 - Responsive design (desktop + mobile)
 - Historical sync from any year (e.g., 1986)
 
+### 📱 iOS Native App
+- **Native iOS application** with SwiftUI
+- **Background GPS tracking** - Replaces Traccar with Core Location
+- **Camera Roll integration** - Direct access to iPhone photos
+- **Offline support** - Works without internet connection
+- **TestFlight ready** - Easy distribution to testers
+- **Secure** - JWT stored in iOS Keychain
+- See `apps/ios/README.md` for setup instructions
+
 ## 🚀 Quick Start with Docker
 
 ### Requirements

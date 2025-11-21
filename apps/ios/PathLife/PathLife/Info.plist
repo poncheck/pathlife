@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Location Permissions -->
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>PathLife needs access to your location to track your daily journey and create your life timeline. This data is stored securely on your server.</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>PathLife needs access to your location to track your daily journey.</string>
+
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>PathLife needs continuous access to your location to automatically track your daily movements in the background.</string>
+
+    <!-- Photo Library Permissions -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>PathLife needs access to your photo library to add photos to your diary entries.</string>
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>PathLife needs access to save photos to your library.</string>
+
+    <!-- Background Modes -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>location</string>
+        <string>fetch</string>
+    </array>
+
+    <!-- Required Device Capabilities -->
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>location-services</string>
+        <string>gps</string>
+    </array>
+
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <!-- For development with local backend -->
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        <!-- In production, configure specific domains:
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>your-backend-domain.com</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+            </dict>
+        </dict>
+        -->
+    </dict>
+</dict>
+</plist>

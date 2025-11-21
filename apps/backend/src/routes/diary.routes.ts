@@ -103,11 +103,9 @@ router.get('/on-this-day/:date', async (req: Request, res: Response) => {
         },
       },
       include: {
-        photos: {
-          where: { selected: true },
-          take: 3,
-        },
+        photos: true,  // Get all photos, not just selected ones
         activities: true,
+        locations: true,  // Include Traccar locations
       },
       orderBy: { date: 'desc' },
     });

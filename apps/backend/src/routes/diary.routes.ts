@@ -181,4 +181,107 @@ router.get('/sync-logs', async (req: Request, res: Response) => {
   }
 });
 
+// iOS: Upload location points from device
+router.post('/locations', async (req: Request, res: Response) => {
+  try {
+    const { locations } = req.body;
+
+    if (!Array.isArray(locations) || locations.length === 0) {
+      return res.status(400).json({ error: 'locations array is required' });
+    }
+
+    const createdLocations = [];
+
+    for (const loc of locations) {
+      const { latitude, longitude, timestamp, speed, altitude, address } = loc;
+      const date = startOfDay(new Date(timestamp));
+
+      // Find or create diary entry for this date
+      let entry = await prisma.diaryEntry.findUnique({
+        where: { date },
+      });
+
+      if (!entry) {
+        entry = await prisma.diaryEntry.create({
+          data: { date },
+        });
+      }
+
+      // Create location record
+      const location = await prisma.location.create({
+        data: {
+          latitude,
+          longitude,
+          timestamp: new Date(timestamp),
+          speed: speed || null,
+          altitude: altitude || null,
+          address: address || null,
+          diaryEntryId: entry.id,
+          metadata: {
+            source: 'ios',
+          },
+        },
+      });
+
+      createdLocations.push(location);
+    }
+
+    logger.info(`Created ${createdLocations.length} location points from iOS`);
+    res.json({
+      success: true,
+      count: createdLocations.length,
+      locations: createdLocations
+    });
+  } catch (error: any) {
+    logger.error('Error uploading iOS locations:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// iOS: Upload photo from device
+router.post('/photos', async (req: Request, res: Response) => {
+  try {
+    const { photo } = req.body;
+
+    if (!photo || !photo.takenAt) {
+      return res.status(400).json({ error: 'photo data with takenAt is required' });
+    }
+
+    const { takenAt, imageData, latitude, longitude } = photo;
+    const date = startOfDay(new Date(takenAt));
+
+    // Find or create diary entry for this date
+    let entry = await prisma.diaryEntry.findUnique({
+      where: { date },
+    });
+
+    if (!entry) {
+      entry = await prisma.diaryEntry.create({
+        data: { date },
+      });
+    }
+
+    // Store photo metadata (actual image could be stored in Immich or local storage)
+    const newPhoto = await prisma.photo.create({
+      data: {
+        immichId: `ios-${Date.now()}`, // Generate unique ID for iOS photos
+        takenAt: new Date(takenAt),
+        selected: true,
+        diaryEntryId: entry.id,
+        metadata: {
+          source: 'ios',
+          latitude,
+          longitude,
+        },
+      },
+    });
+
+    logger.info(`Created photo from iOS for date ${date.toISOString()}`);
+    res.json({ success: true, photo: newPhoto });
+  } catch (error: any) {
+    logger.error('Error uploading iOS photo:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

@@ -116,3 +116,16 @@ model Settings {
 
   @@index([type])
 }
+
+model NightStay {
+  id               String   @id @default(uuid())
+  date             String   @unique // YYYY-MM-DD
+  latitude         Float
+  longitude        Float
+  address          String?
+  distanceFromHome Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([date])
+}

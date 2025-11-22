@@ -89,21 +89,43 @@ export class NightsService {
       const homeLat = parseFloat(homeLatStr);
       const homeLon = parseFloat(homeLonStr);
 
-      logger.info(`Calculating nights away for year ${year} (Home: ${homeLat}, ${homeLon})`);
+      logger.info(`Fetching nights away for year ${year} (Home: ${homeLat}, ${homeLon})`);
 
-      // 2. Iterate through days of the year
+      // 2. Check cache first
       const startDate = startOfYear(new Date(year, 0, 1));
       const endDate = endOfYear(new Date(year, 0, 1));
 
+      const cachedNights = await prisma.nightStay.findMany({
+        where: {
+          date: {
+            gte: format(startDate, 'yyyy-MM-dd'),
+            lte: format(endDate, 'yyyy-MM-dd')
+          }
+        },
+        orderBy: {
+          date: 'asc'
+        }
+      });
+
+      // If we have cached data for the entire year, return it
+      if (cachedNights.length > 0) {
+        logger.info(`Returning ${cachedNights.length} cached nights for year ${year}`);
+        return cachedNights.map(night => ({
+          date: night.date,
+          location: {
+            latitude: night.latitude,
+            longitude: night.longitude,
+            address: night.address || 'Unknown Location'
+          },
+          distanceFromHome: night.distanceFromHome
+        }));
+      }
+
+      // 3. Calculate nights if not cached
+      logger.info(`Calculating nights away for year ${year} (no cache found)`);
       const nightsAway: NightStay[] = [];
 
-      // We will look at each night. A night starts on day X at 23:00 and ends on day X+1 at 06:00.
-      // We can optimize by fetching all locations for the year and processing in memory, 
-      // or fetching day by day. Fetching all might be too heavy if there are many points.
-      // But fetching day by day is 365 queries.
-      // Let's try to fetch in chunks or just fetch all locations for the year (only id, lat, lon, timestamp) to minimize memory.
-
-      // Actually, let's fetch all locations for the year.
+      // Fetch all locations for the year
       const locations = await prisma.location.findMany({
         where: {
           timestamp: {
@@ -112,7 +134,7 @@ export class NightsService {
           }
         },
         select: {
-          id: true, // Need ID to update address
+          id: true,
           latitude: true,
           longitude: true,
           timestamp: true,
@@ -161,15 +183,14 @@ export class NightsService {
                   where: { id: midPoint.id },
                   data: { address: resolved }
                 });
-                // Update local object to avoid resolving again in same loop if we were reusing objects (though we aren't here)
                 midPoint.address = resolved;
 
-                // Sleep a bit to respect rate limits if we are doing many (though this is sequential per night)
+                // Sleep a bit to respect rate limits
                 await new Promise(resolve => setTimeout(resolve, 1000));
               }
             }
 
-            nightsAway.push({
+            const nightData = {
               date: format(currentDate, 'yyyy-MM-dd'),
               location: {
                 latitude: midPoint.latitude,
@@ -177,6 +198,26 @@ export class NightsService {
                 address: address || 'Unknown Location'
               },
               distanceFromHome: distance
+            };
+
+            nightsAway.push(nightData);
+
+            // Save to cache
+            await prisma.nightStay.upsert({
+              where: { date: nightData.date },
+              update: {
+                latitude: midPoint.latitude,
+                longitude: midPoint.longitude,
+                address: address || 'Unknown Location',
+                distanceFromHome: distance
+              },
+              create: {
+                date: nightData.date,
+                latitude: midPoint.latitude,
+                longitude: midPoint.longitude,
+                address: address || 'Unknown Location',
+                distanceFromHome: distance
+              }
             });
           }
         }
@@ -184,10 +225,21 @@ export class NightsService {
         currentDate = addDays(currentDate, 1);
       }
 
+      logger.info(`Calculated and cached ${nightsAway.length} nights for year ${year}`);
       return nightsAway;
 
     } catch (error: any) {
       logger.error('Error calculating nights away:', error);
+      throw error;
+    }
+  }
+
+  async clearCache(): Promise<void> {
+    try {
+      await prisma.nightStay.deleteMany({});
+      logger.info('Night stats cache cleared');
+    } catch (error: any) {
+      logger.error('Error clearing night stats cache:', error);
       throw error;
     }
   }

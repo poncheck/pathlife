@@ -42,6 +42,14 @@ router.put('/:key', async (req: Request, res: Response) => {
     }
 
     await settingsService.set(key, value, type);
+
+    // Clear night stats cache if home location changed
+    if (key === 'home_latitude' || key === 'home_longitude' || key === 'home_address') {
+      const { nightsService } = await import('../services/nights.service');
+      await nightsService.clearCache();
+      logger.info('Night stats cache cleared due to home location change');
+    }
+
     res.json({ message: 'Setting updated successfully' });
   } catch (error: any) {
     logger.error('Update setting error:', error);
@@ -59,6 +67,17 @@ router.post('/bulk', async (req: Request, res: Response) => {
     }
 
     await settingsService.updateMultiple(settings);
+
+    // Clear night stats cache if home location changed
+    const homeLocationKeys = ['home_latitude', 'home_longitude', 'home_address'];
+    const hasHomeLocationChange = settings.some((s: any) => homeLocationKeys.includes(s.key));
+
+    if (hasHomeLocationChange) {
+      const { nightsService } = await import('../services/nights.service');
+      await nightsService.clearCache();
+      logger.info('Night stats cache cleared due to home location change');
+    }
+
     res.json({ message: 'Settings updated successfully' });
   } catch (error: any) {
     logger.error('Bulk update settings error:', error);

@@ -7,7 +7,7 @@ import { Timeline } from './pages/Timeline';
 import { DailyView } from './pages/DailyView';
 import { OnThisDay } from './pages/OnThisDay';
 import { Nights } from './pages/Nights';
-import { Clock, Menu, Settings as SettingsIcon, LogOut, User } from 'lucide-react';
+import { Clock, Menu, Settings as SettingsIcon, LogOut, User, Moon } from 'lucide-react';
 import { useState } from 'react';
 
 function Navigation() {
@@ -46,6 +46,13 @@ function Navigation() {
             >
               <Clock size={18} />
               On This Day
+            </Link>
+            <Link
+              to="/nights"
+              className="text-gray-700 hover:text-blue-600 transition-colors flex items-center gap-2"
+            >
+              <Moon size={18} />
+              Nights
             </Link>
             <Link
               to="/settings"
@@ -96,6 +103,13 @@ function Navigation() {
               onClick={() => setMenuOpen(false)}
             >
               On This Day
+            </Link>
+            <Link
+              to="/nights"
+              className="block py-2 text-gray-700 hover:text-blue-600"
+              onClick={() => setMenuOpen(false)}
+            >
+              Nights
             </Link>
             <Link
               to="/settings"

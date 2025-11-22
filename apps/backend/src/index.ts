@@ -7,6 +7,7 @@ import syncRoutes from './routes/sync.routes';
 import immichRoutes from './routes/immich.routes';
 import authRoutes from './routes/auth.routes';
 import settingsRoutes from './routes/settings.routes';
+import nightsRoutes from './routes/nights.routes';
 import { authMiddleware } from './middleware/auth.middleware';
 import { authService } from './services/auth.service';
 import { initScheduler } from './scheduler';
@@ -47,6 +48,7 @@ app.use('/api/diary', authMiddleware, diaryRoutes);
 app.use('/api/immich', authMiddleware, immichRoutes);
 app.use('/api/sync', authMiddleware, syncRoutes);
 app.use('/api/settings', settingsRoutes); // Has its own auth middleware
+app.use('/api/nights', authMiddleware, nightsRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

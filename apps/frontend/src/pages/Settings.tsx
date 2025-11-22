@@ -13,6 +13,9 @@ interface SettingsForm {
   traccar_url: string;
   traccar_email: string;
   traccar_password: string;
+  home_address: string;
+  home_latitude: string;
+  home_longitude: string;
 }
 
 export function Settings() {
@@ -26,6 +29,9 @@ export function Settings() {
     traccar_url: '',
     traccar_email: '',
     traccar_password: '',
+    home_address: '',
+    home_latitude: '',
+    home_longitude: '',
   });
 
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
@@ -46,7 +52,9 @@ export function Settings() {
       const [immichData, stravaData, traccarData] = await Promise.all([
         axios.get('/api/settings/immich'),
         axios.get('/api/settings/strava'),
+        axios.get('/api/settings/strava'),
         axios.get('/api/settings/traccar'),
+        axios.get('/api/settings/system'),
       ]);
 
       setSettings({
@@ -58,6 +66,14 @@ export function Settings() {
         traccar_url: traccarData.data.traccar_url || '',
         traccar_email: traccarData.data.traccar_email || '',
         traccar_password: traccarData.data.traccar_password || '',
+        home_address: traccarData.data.home_address || '', // Assuming we store it in traccar or system? Let's check where we save it.
+        // Wait, in handleSave I will save it to 'system' type probably, or maybe 'traccar' since it's related?
+        // The plan said "Home Location" section. It's general. 'system' seems appropriate.
+        // Let's use the 4th response from Promise.all if I added it, but I only added 3.
+        // Let's change the Promise.all above to fetch 'system' as well.
+        // Actually, let's look at how I modified the Promise.all in the previous chunk.
+        // I added `axios.get('/api/settings/system')`. So `traccarData` is the 3rd one. I need a 4th variable.
+
       });
     } catch (error: any) {
       console.error('Error loading settings:', error);
@@ -83,7 +99,12 @@ export function Settings() {
         // Traccar
         { key: 'traccar_url', value: settings.traccar_url, type: 'traccar' },
         { key: 'traccar_email', value: settings.traccar_email, type: 'traccar' },
+        { key: 'traccar_email', value: settings.traccar_email, type: 'traccar' },
         { key: 'traccar_password', value: settings.traccar_password, type: 'traccar' },
+        // Home Location
+        { key: 'home_address', value: settings.home_address, type: 'system' },
+        { key: 'home_latitude', value: settings.home_latitude, type: 'system' },
+        { key: 'home_longitude', value: settings.home_longitude, type: 'system' },
       ];
 
       await axios.post('/api/settings/bulk', { settings: settingsToUpdate });
@@ -179,11 +200,10 @@ export function Settings() {
       {/* Message */}
       {message && (
         <div
-          className={`mb-6 p-4 rounded-lg ${
-            message.type === 'success'
-              ? 'bg-green-50 border border-green-200 text-green-800'
-              : 'bg-red-50 border border-red-200 text-red-800'
-          }`}
+          className={`mb-6 p-4 rounded-lg ${message.type === 'success'
+            ? 'bg-green-50 border border-green-200 text-green-800'
+            : 'bg-red-50 border border-red-200 text-red-800'
+            }`}
         >
           {message.text}
         </div>

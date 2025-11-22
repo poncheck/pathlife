@@ -6,7 +6,8 @@ import { Settings } from './pages/Settings';
 import { Timeline } from './pages/Timeline';
 import { DailyView } from './pages/DailyView';
 import { OnThisDay } from './pages/OnThisDay';
-import { Clock, Menu, Settings as SettingsIcon, LogOut, User } from 'lucide-react';
+import { Nights } from './pages/Nights';
+import { Clock, Menu, Settings as SettingsIcon, LogOut, User, Moon } from 'lucide-react';
 import { useState } from 'react';
 
 function Navigation() {
@@ -148,6 +149,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <OnThisDay />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/nights"
+          element={
+            <ProtectedRoute>
+              <Nights />
             </ProtectedRoute>
           }
         />

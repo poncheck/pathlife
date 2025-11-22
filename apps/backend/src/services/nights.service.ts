@@ -180,11 +180,27 @@ export class NightsService {
           let morningPoint = null;
 
           if (eveningLocations.length > 0) {
-            eveningPoint = eveningLocations[Math.floor(eveningLocations.length / 2)];
+            const candidate = eveningLocations[Math.floor(eveningLocations.length / 2)];
+            const distanceFromHome = this.calculateDistance(homeLat, homeLon, candidate.latitude, candidate.longitude);
+            // Only use if away from home (>1km)
+            if (distanceFromHome > 1.0) {
+              eveningPoint = candidate;
+            }
           }
 
           if (morningLocations.length > 0) {
-            morningPoint = morningLocations[Math.floor(morningLocations.length / 2)];
+            const candidate = morningLocations[Math.floor(morningLocations.length / 2)];
+            const distanceFromHome = this.calculateDistance(homeLat, homeLon, candidate.latitude, candidate.longitude);
+            // Only use if away from home (>1km)
+            if (distanceFromHome > 1.0) {
+              morningPoint = candidate;
+            }
+          }
+
+          // If both evening and morning are at home, skip this night
+          if (!eveningPoint && !morningPoint) {
+            currentDate = addDays(currentDate, 1);
+            continue;
           }
 
           // Determine the location to use

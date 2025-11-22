@@ -381,6 +381,58 @@ export function Settings() {
           </div>
         </div>
 
+        {/* Home Location Section */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <span className="w-8 h-8 bg-indigo-100 rounded flex items-center justify-center">
+              🏠
+            </span>
+            Home Location
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Address
+              </label>
+              <input
+                type="text"
+                value={settings.home_address}
+                onChange={(e) => setSettings({ ...settings, home_address: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="123 Main St, City, Country"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Latitude
+                </label>
+                <input
+                  type="text"
+                  value={settings.home_latitude}
+                  onChange={(e) => setSettings({ ...settings, home_latitude: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="52.2297"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Longitude
+                </label>
+                <input
+                  type="text"
+                  value={settings.home_longitude}
+                  onChange={(e) => setSettings({ ...settings, home_longitude: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="21.0122"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Synchronization Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">

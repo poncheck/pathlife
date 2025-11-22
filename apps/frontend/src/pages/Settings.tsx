@@ -66,14 +66,9 @@ export function Settings() {
         traccar_url: traccarData.data.traccar_url || '',
         traccar_email: traccarData.data.traccar_email || '',
         traccar_password: traccarData.data.traccar_password || '',
-        home_address: traccarData.data.home_address || '', // Assuming we store it in traccar or system? Let's check where we save it.
-        // Wait, in handleSave I will save it to 'system' type probably, or maybe 'traccar' since it's related?
-        // The plan said "Home Location" section. It's general. 'system' seems appropriate.
-        // Let's use the 4th response from Promise.all if I added it, but I only added 3.
-        // Let's change the Promise.all above to fetch 'system' as well.
-        // Actually, let's look at how I modified the Promise.all in the previous chunk.
-        // I added `axios.get('/api/settings/system')`. So `traccarData` is the 3rd one. I need a 4th variable.
-
+        home_address: traccarData.data.home_address || '',
+        home_latitude: traccarData.data.home_latitude || '',
+        home_longitude: traccarData.data.home_longitude || '',
       });
     } catch (error: any) {
       console.error('Error loading settings:', error);

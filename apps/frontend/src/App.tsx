@@ -7,7 +7,7 @@ import { Timeline } from './pages/Timeline';
 import { DailyView } from './pages/DailyView';
 import { OnThisDay } from './pages/OnThisDay';
 import { Nights } from './pages/Nights';
-import { Clock, Menu, Settings as SettingsIcon, LogOut, User, Moon } from 'lucide-react';
+import { Clock, Menu, Settings as SettingsIcon, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
 
 function Navigation() {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { Moon, MapPin, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
@@ -31,7 +32,7 @@ export function Nights() {
             setNights(response.data);
         } catch (err: any) {
             console.error('Error fetching nights:', err);
-            setError('Failed to load nights data');
+            setError(err.response?.data?.error || err.message || 'Failed to load nights data');
         } finally {
             setLoading(false);
         }
@@ -65,8 +66,8 @@ export function Nights() {
                     onClick={() => setYear(year + 1)}
                     disabled={year >= new Date().getFullYear()}
                     className={`p-2 rounded-full transition-colors ${year >= new Date().getFullYear()
-                            ? 'text-gray-300 cursor-not-allowed'
-                            : 'hover:bg-gray-100 text-gray-600'
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'hover:bg-gray-100 text-gray-600'
                         }`}
                 >
                     <ArrowRight size={24} />
@@ -116,7 +117,10 @@ export function Nights() {
                 {loading ? (
                     <div className="p-8 text-center text-gray-500">Loading...</div>
                 ) : error ? (
-                    <div className="p-8 text-center text-red-500">{error}</div>
+                    <div className="p-8 text-center text-red-500">
+                        <p className="font-bold">Error loading data</p>
+                        <p className="text-sm mt-2">{error}</p>
+                    </div>
                 ) : nights.length === 0 ? (
                     <div className="p-8 text-center text-gray-500">
                         No nights away recorded for this year.
@@ -124,23 +128,32 @@ export function Nights() {
                 ) : (
                     <div className="divide-y divide-gray-100">
                         {nights.map((night, index) => (
-                            <div key={index} className="p-4 hover:bg-gray-50 transition-colors flex items-start gap-4">
-                                <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <Calendar size={20} className="text-indigo-600" />
+                            <Link
+                                key={index}
+                                to={`/day/${night.date}`}
+                                className="block p-4 hover:bg-gray-50 transition-colors"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <Calendar size={20} className="text-indigo-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-medium text-gray-900">
+                                            {format(new Date(night.date), 'EEEE, MMMM d, yyyy')}
+                                        </div>
+                                        <div className="text-gray-600 flex items-center gap-1 mt-1">
+                                            <MapPin size={16} />
+                                            {night.location.address || 'Unknown Location'}
+                                        </div>
+                                        <div className="text-sm text-gray-400 mt-1">
+                                            {Math.round(night.distanceFromHome)} km from home
+                                        </div>
+                                    </div>
+                                    <div className="self-center text-gray-400">
+                                        <ArrowRight size={20} />
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900">
-                                        {format(new Date(night.date), 'EEEE, MMMM d, yyyy')}
-                                    </div>
-                                    <div className="text-gray-600 flex items-center gap-1 mt-1">
-                                        <MapPin size={16} />
-                                        {night.location.address || 'Unknown Location'}
-                                    </div>
-                                    <div className="text-sm text-gray-400 mt-1">
-                                        {Math.round(night.distanceFromHome)} km from home
-                                    </div>
-                                </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}

@@ -49,9 +49,8 @@ export function Settings() {
       setLoading(true);
 
       // Load settings from all types
-      const [immichData, stravaData, traccarData] = await Promise.all([
+      const [immichData, stravaData, traccarData, systemData] = await Promise.all([
         axios.get('/api/settings/immich'),
-        axios.get('/api/settings/strava'),
         axios.get('/api/settings/strava'),
         axios.get('/api/settings/traccar'),
         axios.get('/api/settings/system'),
@@ -66,9 +65,9 @@ export function Settings() {
         traccar_url: traccarData.data.traccar_url || '',
         traccar_email: traccarData.data.traccar_email || '',
         traccar_password: traccarData.data.traccar_password || '',
-        home_address: traccarData.data.home_address || '',
-        home_latitude: traccarData.data.home_latitude || '',
-        home_longitude: traccarData.data.home_longitude || '',
+        home_address: systemData.data.home_address || '',
+        home_latitude: systemData.data.home_latitude || '',
+        home_longitude: systemData.data.home_longitude || '',
       });
     } catch (error: any) {
       console.error('Error loading settings:', error);

@@ -150,75 +150,120 @@ export class NightsService {
       }
 
       // Group locations by "Night"
-      // A night belongs to the date where it started.
-      // e.g. 2023-01-01 23:00 to 2023-01-02 06:00 belongs to 2023-01-01.
+      // Improved algorithm: check evening (20:00-23:59) and morning (06:00-10:00) locations
+      // If both are in same area (within 5km) and >1km from home, count as night away
 
       let currentDate = startDate;
       while (currentDate < endDate) {
-        const nightStart = setHours(setMinutes(currentDate, 0), 23);
-        const nightEnd = setHours(setMinutes(addDays(currentDate, 1), 0), 6);
+        // Evening window: 20:00-23:59 on current day
+        const eveningStart = setHours(setMinutes(currentDate, 0), 20);
+        const eveningEnd = setHours(setMinutes(currentDate, 59), 23);
 
-        // Filter locations in this window
-        const nightLocations = locations.filter((l: any) => l.timestamp >= nightStart && l.timestamp <= nightEnd);
+        // Morning window: 06:00-10:00 on next day
+        const morningStart = setHours(setMinutes(addDays(currentDate, 1), 0), 6);
+        const morningEnd = setHours(setMinutes(addDays(currentDate, 1), 0), 10);
 
-        if (nightLocations.length > 0) {
-          // Calculate average position or take the one in the middle
-          // Let's take the one with the most occurrences or just average.
-          // Simple approach: take the middle point in time.
-          const midPoint = nightLocations[Math.floor(nightLocations.length / 2)];
+        // Get evening locations
+        const eveningLocations = locations.filter((l: any) =>
+          l.timestamp >= eveningStart && l.timestamp <= eveningEnd
+        );
 
-          const distance = this.calculateDistance(homeLat, homeLon, midPoint.latitude, midPoint.longitude);
+        // Get morning locations
+        const morningLocations = locations.filter((l: any) =>
+          l.timestamp >= morningStart && l.timestamp <= morningEnd
+        );
 
-          if (distance > 1.0) { // 1km threshold
-            let address = midPoint.address;
+        // Need at least one location in either evening or morning
+        if (eveningLocations.length > 0 || morningLocations.length > 0) {
+          // Get representative points
+          let eveningPoint = null;
+          let morningPoint = null;
 
-            // Resolve address if missing
-            if (!address || address === 'Unknown Location') {
-              logger.info(`Resolving address for night at ${midPoint.latitude}, ${midPoint.longitude}`);
-              const resolved = await this.resolveAddress(midPoint.latitude, midPoint.longitude);
-              if (resolved) {
-                address = resolved;
-                // Update database
-                await prisma.location.update({
-                  where: { id: midPoint.id },
-                  data: { address: resolved }
-                });
-                midPoint.address = resolved;
+          if (eveningLocations.length > 0) {
+            eveningPoint = eveningLocations[Math.floor(eveningLocations.length / 2)];
+          }
 
-                // Sleep a bit to respect rate limits
-                await new Promise(resolve => setTimeout(resolve, 1000));
-              }
+          if (morningLocations.length > 0) {
+            morningPoint = morningLocations[Math.floor(morningLocations.length / 2)];
+          }
+
+          // Determine the location to use
+          let nightLocation = null;
+
+          if (eveningPoint && morningPoint) {
+            // Both available - check if they're in same area (within 5km)
+            const distanceBetween = this.calculateDistance(
+              eveningPoint.latitude, eveningPoint.longitude,
+              morningPoint.latitude, morningPoint.longitude
+            );
+
+            if (distanceBetween <= 5.0) {
+              // Same area - use evening point (more likely to be sleeping location)
+              nightLocation = eveningPoint;
+            } else {
+              // Different areas - skip this night (person was traveling)
+              currentDate = addDays(currentDate, 1);
+              continue;
             }
+          } else {
+            // Only one available - use it
+            nightLocation = eveningPoint || morningPoint;
+          }
 
-            const nightData = {
-              date: format(currentDate, 'yyyy-MM-dd'),
-              location: {
-                latitude: midPoint.latitude,
-                longitude: midPoint.longitude,
-                address: address || 'Unknown Location'
-              },
-              distanceFromHome: distance
-            };
+          if (nightLocation) {
+            const distance = this.calculateDistance(homeLat, homeLon, nightLocation.latitude, nightLocation.longitude);
 
-            nightsAway.push(nightData);
+            if (distance > 1.0) { // 1km threshold
+              let address = nightLocation.address;
 
-            // Save to cache
-            await prisma.nightStay.upsert({
-              where: { date: nightData.date },
-              update: {
-                latitude: midPoint.latitude,
-                longitude: midPoint.longitude,
-                address: address || 'Unknown Location',
-                distanceFromHome: distance
-              },
-              create: {
-                date: nightData.date,
-                latitude: midPoint.latitude,
-                longitude: midPoint.longitude,
-                address: address || 'Unknown Location',
-                distanceFromHome: distance
+              // Resolve address if missing
+              if (!address || address === 'Unknown Location') {
+                logger.info(`Resolving address for night at ${nightLocation.latitude}, ${nightLocation.longitude}`);
+                const resolved = await this.resolveAddress(nightLocation.latitude, nightLocation.longitude);
+                if (resolved) {
+                  address = resolved;
+                  // Update database
+                  await prisma.location.update({
+                    where: { id: nightLocation.id },
+                    data: { address: resolved }
+                  });
+                  nightLocation.address = resolved;
+
+                  // Sleep a bit to respect rate limits
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                }
               }
-            });
+
+              const nightData = {
+                date: format(currentDate, 'yyyy-MM-dd'),
+                location: {
+                  latitude: nightLocation.latitude,
+                  longitude: nightLocation.longitude,
+                  address: address || 'Unknown Location'
+                },
+                distanceFromHome: distance
+              };
+
+              nightsAway.push(nightData);
+
+              // Save to cache
+              await prisma.nightStay.upsert({
+                where: { date: nightData.date },
+                update: {
+                  latitude: nightLocation.latitude,
+                  longitude: nightLocation.longitude,
+                  address: address || 'Unknown Location',
+                  distanceFromHome: distance
+                },
+                create: {
+                  date: nightData.date,
+                  latitude: nightLocation.latitude,
+                  longitude: nightLocation.longitude,
+                  address: address || 'Unknown Location',
+                  distanceFromHome: distance
+                }
+              });
+            }
           }
         }
 

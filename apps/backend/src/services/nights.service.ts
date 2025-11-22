@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import axios from 'axios';
 import { settingsService } from './settings.service';
 import logger from '../utils/logger';
 import { startOfYear, endOfYear, addDays, format, setHours, setMinutes } from 'date-fns';
@@ -32,6 +33,46 @@ export class NightsService {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c; // Distance in km
     return d;
+  }
+
+  private async resolveAddress(lat: number, lon: number): Promise<string | null> {
+    try {
+      // Use Nominatim (OpenStreetMap) for reverse geocoding
+      // IMPORTANT: Respect Nominatim Usage Policy (User-Agent, 1 request per second)
+      const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+        params: {
+          lat,
+          lon,
+          format: 'json',
+          zoom: 18,
+          addressdetails: 1
+        },
+        headers: {
+          'User-Agent': 'PathLife/1.0 (poncheck@example.com)' // Replace with actual contact if possible or keep generic but unique
+        }
+      });
+
+      if (response.data && response.data.display_name) {
+        // Construct a shorter address if possible, or just use display_name
+        const addr = response.data.address;
+        let shortAddress = response.data.display_name;
+
+        if (addr) {
+          // Try to build a cleaner address: City, Country or Town, Country
+          const city = addr.city || addr.town || addr.village || addr.hamlet;
+          const country = addr.country;
+          if (city && country) {
+            shortAddress = `${city}, ${country}`;
+          }
+        }
+
+        return shortAddress;
+      }
+      return null;
+    } catch (error: any) {
+      logger.error(`Error resolving address for ${lat}, ${lon}:`, error.message);
+      return null;
+    }
   }
 
   async getNightsAway(year: number): Promise<NightStay[]> {
@@ -71,6 +112,7 @@ export class NightsService {
           }
         },
         select: {
+          id: true, // Need ID to update address
           latitude: true,
           longitude: true,
           timestamp: true,
@@ -95,7 +137,7 @@ export class NightsService {
         const nightEnd = setHours(setMinutes(addDays(currentDate, 1), 0), 6);
 
         // Filter locations in this window
-        const nightLocations = locations.filter(l => l.timestamp >= nightStart && l.timestamp <= nightEnd);
+        const nightLocations = locations.filter((l: any) => l.timestamp >= nightStart && l.timestamp <= nightEnd);
 
         if (nightLocations.length > 0) {
           // Calculate average position or take the one in the middle
@@ -106,12 +148,33 @@ export class NightsService {
           const distance = this.calculateDistance(homeLat, homeLon, midPoint.latitude, midPoint.longitude);
 
           if (distance > 1.0) { // 1km threshold
+            let address = midPoint.address;
+
+            // Resolve address if missing
+            if (!address || address === 'Unknown Location') {
+              logger.info(`Resolving address for night at ${midPoint.latitude}, ${midPoint.longitude}`);
+              const resolved = await this.resolveAddress(midPoint.latitude, midPoint.longitude);
+              if (resolved) {
+                address = resolved;
+                // Update database
+                await prisma.location.update({
+                  where: { id: midPoint.id },
+                  data: { address: resolved }
+                });
+                // Update local object to avoid resolving again in same loop if we were reusing objects (though we aren't here)
+                midPoint.address = resolved;
+
+                // Sleep a bit to respect rate limits if we are doing many (though this is sequential per night)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            }
+
             nightsAway.push({
               date: format(currentDate, 'yyyy-MM-dd'),
               location: {
                 latitude: midPoint.latitude,
                 longitude: midPoint.longitude,
-                address: midPoint.address || 'Unknown Location'
+                address: address || 'Unknown Location'
               },
               distanceFromHome: distance
             });
